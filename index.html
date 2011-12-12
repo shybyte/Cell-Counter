@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Canvas</title>
+        <script type="text/javascript" src="libs/prototype.js"></script>
+        <script type="text/javascript" src="libs/jquery.js"></script>
+        <script type="text/javascript" src="libs/underscore.js"></script>
+        <script type="text/javascript" src="libs/common.js"></script>
+        <script type="text/javascript" src="script.js"></script>
+        <style type="text/css"></style>
+        <script type="text/javascript">
+            Filters = {};
+            Filters.getPixels = function(img) {
+                var c = this.getCanvas(img.width, img.height);
+                var ctx = c.getContext('2d');
+                ctx.drawImage(img,0,0);
+                return ctx.getImageData(0, 0, c.width, c.height);
+            };
+
+            Filters.getCanvas = function(w, h) {
+                var c = document.createElement('canvas');
+                c.width = w;
+                c.height = h;
+                return c;
+            };
+
+
+            Filters.filterImage = function(filter, image, var_args) {
+                var args = [this.getPixels(image)];
+                for(var i = 2; i < arguments.length; i++) {
+                    args.push(arguments[i]);
+                }
+                return filter.apply(null, args);
+            };
+
+            Filters.grayscale = function(pixels, args) {
+                var d = pixels.data;
+                for(var i = 0; i < d.length; i += 4) {
+                    var r = d[i];
+                    var g = d[i + 1];
+                    var b = d[i + 2];
+                    // CIE luminance for the RGB
+                    // The human eye is bad at seeing red and blue, so we de-emphasize them.
+                    var v = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+                    d[i] = d[i + 1] = d[i + 2] = v
+                }
+                return pixels;
+            };
+            jq(function() {
+
+                var holder = document.getElementById('holder'), state = document.getElementById('status');
+
+                if( typeof window.FileReader === 'undefined') {
+                    state.className = 'fail';
+                } else {
+                    state.className = 'success';
+                    state.innerHTML = 'File API & FileReader available';
+                }
+
+                holder.ondragover = function() {
+                    this.className = 'hover';
+                    console.log("ondragover");
+                    return false;
+                };
+                holder.ondragend = function() {
+                    console.log("ondraged");
+                    this.className = '';
+                    return false;
+                };
+                holder.ondrop = function(e) {
+                    this.className = '';
+                    e.preventDefault();
+
+                    var file = e.dataTransfer.files[0], reader = new FileReader();
+                    reader.onload = function(event) {
+                        holder.style.background = 'url(' + event.target.result + ') no-repeat center';
+                        var img = new Image();
+                        img.onload = function() {
+                            var ctx = document.getElementById('canvas').getContext('2d');
+                            ctx.drawImage(img, 0, 0, 200, 200);
+                            var result = Filters.filterImage(Filters.grayscale,img);
+                            ctx.putImageData(result,0,0);
+                        };
+                        img.src = event.target.result;
+                    };
+
+                    reader.readAsDataURL(file);
+
+                    return false;
+                };
+            });
+
+        </script>
+    </head>
+    <body>
+        <h1>Canvas</h1>
+        <div>
+            <button id="runButton">
+                Run
+            </button>
+        </div>
+        <canvas id="canvas" width="200" height="200" style="border:1px solid silver"></canvas>
+        <div id="holder" style="border:1px solid silver;width: 200px;height: 200px"></div>
+        <div id="status"></div>
+
+    </body>
+</html>
