@@ -9,65 +9,16 @@
         <script type="text/javascript" src="libs/common.js"></script>
         <script type="text/javascript" src="js/filters.js"></script>
         <script type="text/javascript" src="js/filters-fast.js"></script>
+        <script type="text/javascript" src="js/cell-counter.js"></script>
+        <link type="text/css" rel="stylesheet" href="css/style.css">
         <style type="text/css"></style>
         <script type="text/javascript">
-
-            jq(function() {
-
-                var holder = document.getElementById('holder'), state = document.getElementById('status');
-
-                if( typeof window.FileReader === 'undefined') {
-                    state.className = 'fail';
-                } else {
-                    state.className = 'success';
-                    state.innerHTML = 'File API & FileReader available';
-                }
-
-                holder.ondragover = function() {
-                    this.className = 'hover';
-                    console.log("ondragover");
-                    return false;
-                };
-                holder.ondragend = function() {
-                    console.log("ondraged");
-                    this.className = '';
-                    return false;
-                };
-                holder.ondrop = function(e) {
-                    this.className = '';
-                    e.preventDefault();
-
-                    var file = e.dataTransfer.files[0], reader = new FileReader();
-                    reader.onload = function(event) {
-                        holder.style.background = 'url(' + event.target.result + ') no-repeat center';
-                        var img = new Image();
-                        img.onload = function() {
-                            var ctx = document.getElementById('canvas').getContext('2d');
-                            ctx.drawImage(img, 0, 0, 200, 200);
-                            var result = Filters.filterImage(Filters.grayscale,img);
-                            ctx.putImageData(result,0,0);
-                        };
-                        img.src = event.target.result;
-                    };
-
-                    reader.readAsDataURL(file);
-
-                    return false;
-                };
-            });
-
         </script>
     </head>
     <body>
-        <h1>Canvas</h1>
-        <div>
-            <button id="runButton">
-                Run
-            </button>
+        <h1>Cell Counter</h1>
+        <div id="mainCanvasContainer">
+            <canvas id="mainCanvas"></canvas>
         </div>
-        <canvas id="canvas" width="200" height="200" style="border:1px solid silver"></canvas>
-        <div id="holder" style="border:1px solid silver;width: 200px;height: 200px"></div>
-        <div id="status"></div>
-
     </body>
 </html>
