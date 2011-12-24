@@ -1,27 +1,30 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Canvas</title>
-        <script type="text/javascript" src="libs/prototype.js"></script>
-        <script type="text/javascript" src="libs/jquery.js"></script>
-        <script type="text/javascript" src="libs/underscore.js"></script>
-        <script type="text/javascript" src="libs/common.js"></script>
-        <script type="text/javascript" src="js/filters.js"></script>
-        <script type="text/javascript" src="js/filters-fast.js"></script>
-        <script type="text/javascript" src="js/cell-counter.js"></script>
-        <link type="text/css" rel="stylesheet" href="css/style.css">
-        <style type="text/css"></style>
-        <script type="text/javascript">
-        </script>
-    </head>
-    <body>
-        <h1>Cell Counter</h1>
-        <div id="tools">
-          Count:  <span id="cellCount">0</span>
-        </div>
-        <div id="mainCanvasContainer">
-            <canvas id="mainCanvas"></canvas>
-        </div>
-    </body>
+<head>
+    <meta charset="UTF-8">
+    <title>Canvas</title>
+    <script type="text/javascript" src="libs/prototype.js"></script>
+    <script type="text/javascript" src="libs/jquery.js"></script>
+    <script type="text/javascript" src="libs/underscore.js"></script>
+    <script type="text/javascript" src="libs/common.js"></script>
+    <script type="text/javascript" src="js/filters.js"></script>
+    <script type="text/javascript" src="js/filters-fast.js"></script>
+    <script type="text/javascript" src="js/cell-counter.js"></script>
+    <link type="text/css" rel="stylesheet" href="css/style.css">
+    <style type="text/css"></style>
+    <script type="text/javascript">
+    </script>
+</head>
+<body>
+<h1>Cell Counter</h1>
+
+<div id="tools">
+    Count: <span id="cellCount">0</span>
+</div>
+<div id="mainCanvasContainer">
+    <canvas id="mainCanvas">
+    </canvas>
+    <div id="markings"></div>
+</div>
+</body>
 </html>
