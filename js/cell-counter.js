@@ -1,18 +1,37 @@
 (function() {
-  var Marking, checkAPIsAvailable, initCellCounter, markingsIdCounter;
+  var Marking, checkAPIsAvailable, draggedMarking, initCellCounter, markingsIdCounter;
   markingsIdCounter = 0;
+  draggedMarking = null;
   Marking = (function() {
     function Marking(x, y) {
-      var pos;
+      var pos, self;
       this.x = x;
       this.y = y;
+      self = this;
       this.id = markingsIdCounter++;
       pos = {
         left: this.x - 4,
         top: this.y - 4
       };
-      this.el = jq('<div/>').addClass('marking').css(pos).attr('id', this.id);
+      this.el = jq('<div/>').addClass('marking').css(pos).attr({
+        id: this.id,
+        draggable: true
+      }).bind('dragend', function() {
+        return log('dragend');
+      }).bind('dragstart', function() {
+        self.el.css('opacity', '0.4');
+        draggedMarking = self;
+        return log("dragstart");
+      });
     }
+    Marking.prototype.move = function(x, y) {
+      var pos;
+      pos = {
+        left: x - 4,
+        top: y - 4
+      };
+      return this.el.css(pos);
+    };
     return Marking;
   })();
   initCellCounter = function() {
@@ -27,26 +46,35 @@
       return loadImage('images/nora1.jpg');
     };
     initDragAndDrop = function() {
-      canvas.ondragover = function() {};
-      this.className = 'ondragover';
-      return false;
-      canvas.ondragleave = function() {
-        this.className = '';
+      return $markings.bind('dragover', function() {
+        canvas.className = 'ondragover';
         return false;
-      };
-      return canvas.ondrop = function(e) {
-        this.className = '';
+      }).bind('dragleave', function() {
+        canvas.className = '';
+        return false;
+      }).bind('drop', function(e) {
+        canvas.className = '';
         e.preventDefault();
-        return loadLocalImage(e.dataTransfer.files[0]);
-      };
+        if (e.originalEvent.dataTransfer.files.length > 0) {
+          return loadLocalImage(e.originalEvent.dataTransfer.files[0]);
+        } else if (draggedMarking) {
+          log(draggedMarking);
+          draggedMarking.move(e.layerX, e.layerY);
+          return draggedMarking.el.css('opacity', '1.0');
+        }
+      });
     };
     initManualCounter = function() {
-      return $markings.click(function(e) {
+      $markings.click(function(e) {
         if (e.ctrlKey && markings.length > 0) {
-          return removeMarking(e.offsetX, e.offsetY);
+          return removeMarking(e.layerX, e.layerY);
         } else {
-          return addMarking(e.offsetX, e.offsetY);
+          return addMarking(e.layerX, e.layerY);
         }
+      });
+      return $markings.bind('contextmenu', function(e) {
+        e.preventDefault();
+        return removeMarking(e.layerX, e.layerY);
       });
     };
     addMarking = function(x, y) {
@@ -59,9 +87,11 @@
     removeMarking = function(x, y) {
       var marking;
       marking = findNearestMarking(x, y);
-      markings = _.without(markings, marking);
-      marking.el.remove();
-      return showCellCount();
+      if (marking) {
+        markings = _.without(markings, marking);
+        marking.el.remove();
+        return showCellCount();
+      }
     };
     showCellCount = function() {
       return jq('#cellCount').text(markings.length);

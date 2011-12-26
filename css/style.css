@@ -50,4 +50,5 @@ canvas.ondragover {
     height: 7px;
     border: 1px solid red;
     border-radius: 5px;
+    cursor: move;
 }
