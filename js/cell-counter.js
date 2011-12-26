@@ -4,16 +4,12 @@
   draggedMarking = null;
   Marking = (function() {
     function Marking(x, y) {
-      var pos, self;
+      var self;
       this.x = x;
       this.y = y;
       self = this;
       this.id = markingsIdCounter++;
-      pos = {
-        left: this.x - 4,
-        top: this.y - 4
-      };
-      this.el = jq('<div/>').addClass('marking').css(pos).attr({
+      this.el = jq('<div/>').addClass('marking').attr({
         id: this.id,
         draggable: true
       }).bind('dragend', function() {
@@ -23,9 +19,12 @@
         draggedMarking = self;
         return log("dragstart");
       });
+      this.move(this.x, this.y);
     }
     Marking.prototype.move = function(x, y) {
       var pos;
+      this.x = x;
+      this.y = y;
       pos = {
         left: x - 4,
         top: y - 4
@@ -35,15 +34,22 @@
     return Marking;
   })();
   initCellCounter = function() {
-    var $markings, addMarking, canvas, ctx, findNearestMarking, init, initDragAndDrop, initManualCounter, loadImage, loadLocalImage, markings, removeMarking, showCellCount;
+    var $fadeThresholdImage, $markings, $threshold, addMarking, canvas, changeFading, ctx, ctxFiltered, currentImg, filterImage, filteredCanvas, findNearestMarking, init, initDragAndDrop, initManualCounter, loadImage, loadLocalImage, markings, removeMarking, showCellCount;
+    $threshold = jq('#threshold');
+    $fadeThresholdImage = jq('#fadeThresholdImage');
+    currentImg = null;
     canvas = $('mainCanvas');
+    filteredCanvas = $('filteredCanvas');
     ctx = canvas.getContext('2d');
+    ctxFiltered = filteredCanvas.getContext('2d');
     markings = [];
     $markings = jq('#markings');
     init = function() {
       initDragAndDrop();
       initManualCounter();
-      return loadImage('images/nora1.jpg');
+      loadImage('images/nora1.jpg');
+      $threshold.change(filterImage);
+      return $fadeThresholdImage.change(changeFading);
     };
     initDragAndDrop = function() {
       return $markings.bind('dragover', function() {
@@ -60,7 +66,8 @@
         } else if (draggedMarking) {
           log(draggedMarking);
           draggedMarking.move(e.layerX, e.layerY);
-          return draggedMarking.el.css('opacity', '1.0');
+          draggedMarking.el.css('opacity', '1.0');
+          return draggedMarking = null;
         }
       });
     };
@@ -76,6 +83,19 @@
         e.preventDefault();
         return removeMarking(e.layerX, e.layerY);
       });
+    };
+    changeFading = function() {
+      var v, v1, v2;
+      v = $fadeThresholdImage.val() / 128;
+      if (v < 1) {
+        v1 = 1;
+        v2 = v;
+      } else {
+        v1 = 2 - v;
+        v2 = 1;
+      }
+      jq('#mainCanvas').css('opacity', v1);
+      return jq('#filteredCanvas').css('opacity', v2);
     };
     addMarking = function(x, y) {
       var marking;
@@ -108,9 +128,11 @@
       var img;
       img = new Image();
       img.onload = function() {
+        currentImg = img;
         canvas.width = img.width;
         canvas.height = img.height;
-        return ctx.drawImage(img, 0, 0);
+        ctx.drawImage(img, 0, 0);
+        return filterImage();
       };
       return img.src = src;
     };
@@ -121,6 +143,15 @@
         return loadImage(event.target.result);
       };
       return reader.readAsDataURL(file);
+    };
+    filterImage = function() {
+      var filteredImage;
+      filteredCanvas.width = currentImg.width;
+      filteredCanvas.height = currentImg.height;
+      filteredImage = Filters.filterImage(Filters.thresholdRG, currentImg, {
+        threshold: $threshold.val()
+      });
+      return ctxFiltered.putImageData(filteredImage, 0, 0);
     };
     return init();
   };

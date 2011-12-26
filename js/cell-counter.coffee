@@ -5,27 +5,33 @@ class Marking
   constructor:(@x, @y) ->
     self = this
     @id = markingsIdCounter++
-    pos = {left:@x - 4, top:@y - 4}
-    @el = jq('<div/>').addClass('marking').css(pos).attr(
+    @el = jq('<div/>').addClass('marking').attr(
       id:@id
       draggable:true
-    ).bind('dragend',
-      ->
+    ).bind('dragend', ->
         log('dragend')
     ).bind('dragstart', ->
-        self.el.css('opacity','0.4')
+        self.el.css('opacity', '0.4')
         draggedMarking = self
         log("dragstart")
     )
+    @move(@x, @y)
 
-  move: (x,y) ->
-    pos = {left:x - 4, top:y-4}
+  move:(x, y) ->
+    @x = x
+    @y = y
+    pos = {left:x - 4, top:y - 4}
     @el.css(pos)
 
 
 initCellCounter = () ->
+  $threshold = jq('#threshold')
+  $fadeThresholdImage = jq('#fadeThresholdImage')
+  currentImg = null
   canvas = $('mainCanvas')
+  filteredCanvas = $('filteredCanvas')
   ctx = canvas.getContext('2d')
+  ctxFiltered = filteredCanvas.getContext('2d')
   markings = []
   $markings = jq('#markings')
 
@@ -33,14 +39,14 @@ initCellCounter = () ->
     initDragAndDrop()
     initManualCounter()
     loadImage('images/nora1.jpg')
+    $threshold.change(filterImage)
+    $fadeThresholdImage.change(changeFading)
 
   initDragAndDrop = ->
-    $markings.bind('dragover',
-      ->
+    $markings.bind('dragover', ->
         canvas.className = 'ondragover'
         return false
-    ).bind('dragleave',
-      ->
+    ).bind('dragleave', ->
         canvas.className = ''
         return false
     ).bind('drop', (e) ->
@@ -51,9 +57,9 @@ initCellCounter = () ->
         else if draggedMarking
           log(draggedMarking)
           draggedMarking.move(e.layerX, e.layerY)
-          draggedMarking.el.css('opacity','1.0')
+          draggedMarking.el.css('opacity', '1.0')
+          draggedMarking = null
     )
-
 
   initManualCounter = ->
     $markings.click((e) ->
@@ -63,9 +69,20 @@ initCellCounter = () ->
           addMarking(e.layerX, e.layerY)
     )
     $markings.bind('contextmenu', (e)->
-      e.preventDefault()
-      removeMarking(e.layerX, e.layerY)
+        e.preventDefault()
+        removeMarking(e.layerX, e.layerY)
     )
+
+  changeFading = ->
+    v = $fadeThresholdImage.val()/128
+    if v<1
+      v1 = 1
+      v2 = v
+    else
+      v1 = 2-v
+      v2 = 1
+    jq('#mainCanvas').css('opacity',v1)
+    jq('#filteredCanvas').css('opacity',v2)
 
   addMarking = (x, y) ->
     marking = new Marking(x, y)
@@ -94,9 +111,12 @@ initCellCounter = () ->
     img = new Image()
 
     img.onload = ->
+      currentImg = img
       canvas.width = img.width
       canvas.height = img.height
       ctx.drawImage(img, 0, 0)
+      filterImage()
+
     img.src = src
 
   loadLocalImage = (file) ->
@@ -104,6 +124,13 @@ initCellCounter = () ->
     reader.onload = (event) ->
       loadImage(event.target.result)
     reader.readAsDataURL(file)
+
+  filterImage = ->
+    filteredCanvas.width = currentImg.width
+    filteredCanvas.height = currentImg.height
+    filteredImage =  Filters.filterImage(Filters.thresholdRG,currentImg,{threshold: $threshold.val()})
+
+    ctxFiltered.putImageData(filteredImage,0,0)
 
   init()
 
