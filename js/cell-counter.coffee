@@ -1,11 +1,12 @@
+markingsSize = 10
 markingsIdCounter = 0
 draggedMarking = null
 
 class Marking
-  constructor:(@x, @y) ->
+  constructor:(@pos,@type) ->
     self = this
     @id = markingsIdCounter++
-    @el = jq('<div/>').addClass('marking').attr(
+    @el = jq('<div/>').addClass('marking markingType'+@type).attr(
       id:@id
       draggable:true
     ).bind('dragend', ->
@@ -15,13 +16,12 @@ class Marking
         draggedMarking = self
         log("dragstart")
     )
-    @move(@x, @y)
+    @move(pos)
 
-  move:(x, y) ->
-    @x = x
-    @y = y
-    pos = {left:x - 4, top:y - 4}
-    @el.css(pos)
+  move:(pos) ->
+    @pos = pos
+    screenPos = {left:pos.x - markingsSize/2, top:pos.y - markingsSize/2}
+    @el.css(screenPos)
 
 
 initCellCounter = () ->
@@ -29,6 +29,7 @@ initCellCounter = () ->
   $fadeThresholdImage = jq('#fadeThresholdImage')
   currentImg = null
   canvas = $('mainCanvas')
+  $canvas = jq(canvas)
   filteredCanvas = $('filteredCanvas')
   ctx = canvas.getContext('2d')
   ctxFiltered = filteredCanvas.getContext('2d')
@@ -41,10 +42,11 @@ initCellCounter = () ->
     loadImage('images/nora1.jpg')
     $threshold.change(filterImage)
     $fadeThresholdImage.change(changeFading)
+    jq('#removeAllMarkings').click(removeAllMarkings)
 
   initDragAndDrop = ->
     $markings.bind('dragover', ->
-        canvas.className = 'ondragover'
+        #canvas.className = 'ondragover'
         return false
     ).bind('dragleave', ->
         canvas.className = ''
@@ -55,26 +57,31 @@ initCellCounter = () ->
         if e.originalEvent.dataTransfer.files.length > 0
           loadLocalImage(e.originalEvent.dataTransfer.files[0])
         else if draggedMarking
-          log(draggedMarking)
-          draggedMarking.move(e.layerX, e.layerY)
+          draggedMarking.move(eventPosInCanvas(e.originalEvent))
           draggedMarking.el.css('opacity', '1.0')
           draggedMarking = null
     )
 
+  eventPosInCanvas = (e)->
+    canvasOffset = $canvas.offset()
+    return {x:e.pageX-canvasOffset.left,y:e.pageY-canvasOffset.top}
+
   initManualCounter = ->
     $markings.click((e) ->
+        pos = eventPosInCanvas(e)
         if e.ctrlKey and markings.length > 0
-          removeMarking(e.layerX, e.layerY)
+          removeMarking(pos)
         else
-          addMarking(e.layerX, e.layerY)
+          addMarking(pos)
     )
     $markings.bind('contextmenu', (e)->
         e.preventDefault()
-        removeMarking(e.layerX, e.layerY)
+        removeMarking(eventPosInCanvas(e))
     )
 
   changeFading = ->
-    v = $fadeThresholdImage.val()/128
+    v = $fadeThresholdImage.val()
+    v = v/128
     if v<1
       v1 = 1
       v2 = v
@@ -84,26 +91,37 @@ initCellCounter = () ->
     jq('#mainCanvas').css('opacity',v1)
     jq('#filteredCanvas').css('opacity',v2)
 
-  addMarking = (x, y) ->
-    marking = new Marking(x, y)
+  addMarking = (pos) ->
+    markingType = jq('input:radio[name=markingColor]:checked').val()
+    marking = new Marking(pos,markingType)
     markings.push(marking)
     $markings.append(marking.el)
     showCellCount()
 
-  removeMarking = (x, y) ->
-    marking = findNearestMarking(x, y)
+  removeMarking = (pos) ->
+    marking = findNearestMarking(pos.x, pos.y)
     if marking
       markings = _.without(markings, marking)
       marking.el.remove()
       showCellCount()
 
+  removeAllMarkings = ->
+    for marking in markings
+      marking.el.remove()
+    markings = []
+    showCellCount()
+
   showCellCount = ->
-    jq('#cellCount').text(markings.length)
+    groupedMarkings = _.groupBy(markings,'type')
+    countByCellType = (type) ->
+      groupedMarkings[type]?.length ? 0
+    jq('#cellCount0').text(countByCellType(0))
+    jq('#cellCount1').text(countByCellType(1))
 
   findNearestMarking = (x, y) ->
     _.min(markings, (marking) ->
-        dx = marking.x - x
-        dy = marking.y - y
+        dx = marking.pos.x - x
+        dy = marking.pos.y - y
         dx * dx + dy * dy
     )
 
@@ -142,3 +160,4 @@ checkAPIsAvailable = ->
 jq ->
   checkAPIsAvailable()
   initCellCounter()
+

@@ -18,12 +18,24 @@ h1 {
     margin-right: 20px;
 }
 
+.toolsSection {
+    margin-bottom: 1em;
+}
 
-label {
+label[for="redMarking"] {
+    color: red;
+}
+
+label[for="yellowMarking"] {
+    color: yellow;
+}
+
+
+label.range {
     display: block;
 }
 
-input {
+input[type="range"] {
     width: 90%;
 }
 
@@ -64,9 +76,17 @@ canvas.ondragover {
 
 .marking {
     position: absolute;
-    width: 7px;
-    height: 7px;
-    border: 1px solid red;
+    width: 10px;
+    height: 10px;
+    background: red;
     border-radius: 5px;
     cursor: move;
+}
+
+.markingType0 {
+    background: red;
+}
+
+.markingType1 {
+    background: yellow;
 }

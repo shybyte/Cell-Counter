@@ -1,15 +1,16 @@
 (function() {
-  var Marking, checkAPIsAvailable, draggedMarking, initCellCounter, markingsIdCounter;
+  var Marking, checkAPIsAvailable, draggedMarking, initCellCounter, markingsIdCounter, markingsSize;
+  markingsSize = 10;
   markingsIdCounter = 0;
   draggedMarking = null;
   Marking = (function() {
-    function Marking(x, y) {
+    function Marking(pos, type) {
       var self;
-      this.x = x;
-      this.y = y;
+      this.pos = pos;
+      this.type = type;
       self = this;
       this.id = markingsIdCounter++;
-      this.el = jq('<div/>').addClass('marking').attr({
+      this.el = jq('<div/>').addClass('marking markingType' + this.type).attr({
         id: this.id,
         draggable: true
       }).bind('dragend', function() {
@@ -19,26 +20,26 @@
         draggedMarking = self;
         return log("dragstart");
       });
-      this.move(this.x, this.y);
+      this.move(pos);
     }
-    Marking.prototype.move = function(x, y) {
-      var pos;
-      this.x = x;
-      this.y = y;
-      pos = {
-        left: x - 4,
-        top: y - 4
+    Marking.prototype.move = function(pos) {
+      var screenPos;
+      this.pos = pos;
+      screenPos = {
+        left: pos.x - markingsSize / 2,
+        top: pos.y - markingsSize / 2
       };
-      return this.el.css(pos);
+      return this.el.css(screenPos);
     };
     return Marking;
   })();
   initCellCounter = function() {
-    var $fadeThresholdImage, $markings, $threshold, addMarking, canvas, changeFading, ctx, ctxFiltered, currentImg, filterImage, filteredCanvas, findNearestMarking, init, initDragAndDrop, initManualCounter, loadImage, loadLocalImage, markings, removeMarking, showCellCount;
+    var $canvas, $fadeThresholdImage, $markings, $threshold, addMarking, canvas, changeFading, ctx, ctxFiltered, currentImg, eventPosInCanvas, filterImage, filteredCanvas, findNearestMarking, init, initDragAndDrop, initManualCounter, loadImage, loadLocalImage, markings, removeAllMarkings, removeMarking, showCellCount;
     $threshold = jq('#threshold');
     $fadeThresholdImage = jq('#fadeThresholdImage');
     currentImg = null;
     canvas = $('mainCanvas');
+    $canvas = jq(canvas);
     filteredCanvas = $('filteredCanvas');
     ctx = canvas.getContext('2d');
     ctxFiltered = filteredCanvas.getContext('2d');
@@ -49,11 +50,11 @@
       initManualCounter();
       loadImage('images/nora1.jpg');
       $threshold.change(filterImage);
-      return $fadeThresholdImage.change(changeFading);
+      $fadeThresholdImage.change(changeFading);
+      return jq('#removeAllMarkings').click(removeAllMarkings);
     };
     initDragAndDrop = function() {
       return $markings.bind('dragover', function() {
-        canvas.className = 'ondragover';
         return false;
       }).bind('dragleave', function() {
         canvas.className = '';
@@ -64,29 +65,39 @@
         if (e.originalEvent.dataTransfer.files.length > 0) {
           return loadLocalImage(e.originalEvent.dataTransfer.files[0]);
         } else if (draggedMarking) {
-          log(draggedMarking);
-          draggedMarking.move(e.layerX, e.layerY);
+          draggedMarking.move(eventPosInCanvas(e.originalEvent));
           draggedMarking.el.css('opacity', '1.0');
           return draggedMarking = null;
         }
       });
     };
+    eventPosInCanvas = function(e) {
+      var canvasOffset;
+      canvasOffset = $canvas.offset();
+      return {
+        x: e.pageX - canvasOffset.left,
+        y: e.pageY - canvasOffset.top
+      };
+    };
     initManualCounter = function() {
       $markings.click(function(e) {
+        var pos;
+        pos = eventPosInCanvas(e);
         if (e.ctrlKey && markings.length > 0) {
-          return removeMarking(e.layerX, e.layerY);
+          return removeMarking(pos);
         } else {
-          return addMarking(e.layerX, e.layerY);
+          return addMarking(pos);
         }
       });
       return $markings.bind('contextmenu', function(e) {
         e.preventDefault();
-        return removeMarking(e.layerX, e.layerY);
+        return removeMarking(eventPosInCanvas(e));
       });
     };
     changeFading = function() {
       var v, v1, v2;
-      v = $fadeThresholdImage.val() / 128;
+      v = $fadeThresholdImage.val();
+      v = v / 128;
       if (v < 1) {
         v1 = 1;
         v2 = v;
@@ -97,30 +108,47 @@
       jq('#mainCanvas').css('opacity', v1);
       return jq('#filteredCanvas').css('opacity', v2);
     };
-    addMarking = function(x, y) {
-      var marking;
-      marking = new Marking(x, y);
+    addMarking = function(pos) {
+      var marking, markingType;
+      markingType = jq('input:radio[name=markingColor]:checked').val();
+      marking = new Marking(pos, markingType);
       markings.push(marking);
       $markings.append(marking.el);
       return showCellCount();
     };
-    removeMarking = function(x, y) {
+    removeMarking = function(pos) {
       var marking;
-      marking = findNearestMarking(x, y);
+      marking = findNearestMarking(pos.x, pos.y);
       if (marking) {
         markings = _.without(markings, marking);
         marking.el.remove();
         return showCellCount();
       }
     };
+    removeAllMarkings = function() {
+      var marking, _i, _len;
+      for (_i = 0, _len = markings.length; _i < _len; _i++) {
+        marking = markings[_i];
+        marking.el.remove();
+      }
+      markings = [];
+      return showCellCount();
+    };
     showCellCount = function() {
-      return jq('#cellCount').text(markings.length);
+      var countByCellType, groupedMarkings;
+      groupedMarkings = _.groupBy(markings, 'type');
+      countByCellType = function(type) {
+        var _ref, _ref2;
+        return (_ref = (_ref2 = groupedMarkings[type]) != null ? _ref2.length : void 0) != null ? _ref : 0;
+      };
+      jq('#cellCount0').text(countByCellType(0));
+      return jq('#cellCount1').text(countByCellType(1));
     };
     findNearestMarking = function(x, y) {
       return _.min(markings, function(marking) {
         var dx, dy;
-        dx = marking.x - x;
-        dy = marking.y - y;
+        dx = marking.pos.x - x;
+        dy = marking.pos.y - y;
         return dx * dx + dy * dy;
       });
     };
