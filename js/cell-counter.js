@@ -34,7 +34,7 @@
     return Marking;
   })();
   initCellCounter = function() {
-    var $canvas, $fadeThresholdImage, $markings, $threshold, addMarking, canvas, changeFading, ctx, ctxFiltered, currentImg, eventPosInCanvas, filterImage, filteredCanvas, findNearestMarking, init, initDragAndDrop, initManualCounter, loadImage, loadLocalImage, markings, removeAllMarkings, removeMarking, showCellCount;
+    var $canvas, $fadeThresholdImage, $markings, $threshold, addMarking, canvas, changeFading, ctx, ctxFiltered, currentImg, eventPosInCanvas, filterImage, filterImage2, filteredCanvas, findNearestMarking, init, initDragAndDrop, initManualCounter, loadImage, loadLocalImage, markings, removeAllMarkings, removeMarking, showCellCount;
     $threshold = jq('#threshold');
     $fadeThresholdImage = jq('#fadeThresholdImage');
     currentImg = null;
@@ -51,7 +51,8 @@
       loadImage('images/nora1.jpg');
       $threshold.change(filterImage);
       $fadeThresholdImage.change(changeFading);
-      return jq('#removeAllMarkings').click(removeAllMarkings);
+      jq('#removeAllMarkings').click(removeAllMarkings);
+      return jq('#filterButton').click(filterImage2);
     };
     initDragAndDrop = function() {
       return $markings.bind('dragover', function() {
@@ -138,8 +139,8 @@
       var countByCellType, groupedMarkings;
       groupedMarkings = _.groupBy(markings, 'type');
       countByCellType = function(type) {
-        var _ref, _ref2;
-        return (_ref = (_ref2 = groupedMarkings[type]) != null ? _ref2.length : void 0) != null ? _ref : 0;
+        var _ref;
+        return (_ref = groupedMarkings[type]) != null ? typeof _ref.length === "function" ? _ref.length(0) : void 0 : void 0;
       };
       jq('#cellCount0').text(countByCellType(0));
       return jq('#cellCount1').text(countByCellType(1));
@@ -179,6 +180,12 @@
       filteredImage = Filters.filterImage(Filters.thresholdRG, currentImg, {
         threshold: $threshold.val()
       });
+      return ctxFiltered.putImageData(filteredImage, 0, 0);
+    };
+    filterImage2 = function() {
+      var convolutionMatrix, filteredImage;
+      convolutionMatrix = [0, -1, 0, -1, 5, -1, 0, -1, 0];
+      filteredImage = Filters.filterCanvas(Filters.fastGaussian, filteredCanvas, convolutionMatrix);
       return ctxFiltered.putImageData(filteredImage, 0, 0);
     };
     return init();

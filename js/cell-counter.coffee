@@ -3,13 +3,14 @@ markingsIdCounter = 0
 draggedMarking = null
 
 class Marking
-  constructor:(@pos,@type) ->
+  constructor:(@pos, @type) ->
     self = this
     @id = markingsIdCounter++
-    @el = jq('<div/>').addClass('marking markingType'+@type).attr(
+    @el = jq('<div/>').addClass('marking markingType' + @type).attr(
       id:@id
       draggable:true
-    ).bind('dragend', ->
+    ).bind('dragend',
+      ->
         log('dragend')
     ).bind('dragstart', ->
         self.el.css('opacity', '0.4')
@@ -20,7 +21,7 @@ class Marking
 
   move:(pos) ->
     @pos = pos
-    screenPos = {left:pos.x - markingsSize/2, top:pos.y - markingsSize/2}
+    screenPos = {left:pos.x - markingsSize / 2, top:pos.y - markingsSize / 2}
     @el.css(screenPos)
 
 
@@ -43,12 +44,15 @@ initCellCounter = () ->
     $threshold.change(filterImage)
     $fadeThresholdImage.change(changeFading)
     jq('#removeAllMarkings').click(removeAllMarkings)
+    jq('#filterButton').click(filterImage2)
 
   initDragAndDrop = ->
-    $markings.bind('dragover', ->
+    $markings.bind('dragover',
+      ->
         #canvas.className = 'ondragover'
         return false
-    ).bind('dragleave', ->
+    ).bind('dragleave',
+      ->
         canvas.className = ''
         return false
     ).bind('drop', (e) ->
@@ -64,7 +68,7 @@ initCellCounter = () ->
 
   eventPosInCanvas = (e)->
     canvasOffset = $canvas.offset()
-    return {x:e.pageX-canvasOffset.left,y:e.pageY-canvasOffset.top}
+    return {x:e.pageX - canvasOffset.left, y:e.pageY - canvasOffset.top}
 
   initManualCounter = ->
     $markings.click((e) ->
@@ -81,19 +85,19 @@ initCellCounter = () ->
 
   changeFading = ->
     v = $fadeThresholdImage.val()
-    v = v/128
-    if v<1
+    v = v / 128
+    if v < 1
       v1 = 1
       v2 = v
     else
-      v1 = 2-v
+      v1 = 2 - v
       v2 = 1
-    jq('#mainCanvas').css('opacity',v1)
-    jq('#filteredCanvas').css('opacity',v2)
+    jq('#mainCanvas').css('opacity', v1)
+    jq('#filteredCanvas').css('opacity', v2)
 
   addMarking = (pos) ->
     markingType = jq('input:radio[name=markingColor]:checked').val()
-    marking = new Marking(pos,markingType)
+    marking = new Marking(pos, markingType)
     markings.push(marking)
     $markings.append(marking.el)
     showCellCount()
@@ -112,9 +116,9 @@ initCellCounter = () ->
     showCellCount()
 
   showCellCount = ->
-    groupedMarkings = _.groupBy(markings,'type')
+    groupedMarkings = _.groupBy(markings, 'type')
     countByCellType = (type) ->
-      groupedMarkings[type]?.length ? 0
+      groupedMarkings[type]?.length? 0
     jq('#cellCount0').text(countByCellType(0))
     jq('#cellCount1').text(countByCellType(1))
 
@@ -146,9 +150,16 @@ initCellCounter = () ->
   filterImage = ->
     filteredCanvas.width = currentImg.width
     filteredCanvas.height = currentImg.height
-    filteredImage =  Filters.filterImage(Filters.thresholdRG,currentImg,{threshold: $threshold.val()})
+    filteredImage = Filters.filterImage(Filters.thresholdRG, currentImg, {threshold:$threshold.val()})
+    ctxFiltered.putImageData(filteredImage, 0, 0)
 
-    ctxFiltered.putImageData(filteredImage,0,0)
+  filterImage2 = ->
+    convolutionMatrix = [  0, -1, 0,
+      -1, 5, -1,
+      0, -1, 0 ]
+    filteredImage = Filters.filterCanvas(Filters.fastGaussian, filteredCanvas, convolutionMatrix)
+    ctxFiltered.putImageData(filteredImage, 0, 0)
+
 
   init()
 

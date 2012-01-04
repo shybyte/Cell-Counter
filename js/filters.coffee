@@ -15,4 +15,12 @@ Filters =
     filterImage: (filter, image, varArgs...) ->
         return filter.apply(null, [@getPixels(image)].concat(varArgs))
 
+    filterImageData: (filter, imageData, varArgs...) ->
+        return filter.apply(null, [imageData].concat(varArgs))
+
+    filterCanvas: (filter, canvas, varArgs...) ->
+      ctx = canvas.getContext('2d')
+      imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+      return filter.apply(null, [imageData].concat(varArgs))
+
 window.Filters = Filters
