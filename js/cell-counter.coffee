@@ -8,7 +8,7 @@ class Marking
     @id = markingsIdCounter++
     @el = jq('<div/>').addClass('marking markingType' + @type).attr(
       id:@id
-      draggable:true
+      draggable:false
     ).bind('dragend',
       ->
         log('dragend')
@@ -41,8 +41,10 @@ initCellCounter = () ->
     initDragAndDrop()
     initManualCounter()
     loadImage('images/nora1.jpg')
-    $threshold.change(filterImage)
-    $fadeThresholdImage.change(changeFading)
+    $threshold.rangeinput().change(filterImage)
+    $threshold = jq('#threshold').hide()
+    $fadeThresholdImage.rangeinput().change(changeFading)
+    $fadeThresholdImage = jq('#fadeThresholdImage').hide()
     jq('#removeAllMarkings').click(removeAllMarkings)
     jq('#filterButton').click(filterImage2)
 
@@ -61,9 +63,10 @@ initCellCounter = () ->
         if e.originalEvent.dataTransfer.files.length > 0
           loadLocalImage(e.originalEvent.dataTransfer.files[0])
         else if draggedMarking
-          draggedMarking.move(eventPosInCanvas(e.originalEvent))
-          draggedMarking.el.css('opacity', '1.0')
-          draggedMarking = null
+          log("nada")
+      #draggedMarking.move(eventPosInCanvas(e.originalEvent))
+      #draggedMarking.el.css('opacity', '1.0')
+      #draggedMarking = null
     )
 
   eventPosInCanvas = (e)->
@@ -117,8 +120,8 @@ initCellCounter = () ->
 
   showCellCount = ->
     groupedMarkings = _.groupBy(markings, 'type')
-    countByCellType = (type) ->
-      groupedMarkings[type]?.length? 0
+    countByCellType = (type2) ->
+      (groupedMarkings[type2]?.length) ? 0
     jq('#cellCount0').text(countByCellType(0))
     jq('#cellCount1').text(countByCellType(1))
 
@@ -150,15 +153,15 @@ initCellCounter = () ->
   filterImage = ->
     filteredCanvas.width = currentImg.width
     filteredCanvas.height = currentImg.height
-    filteredImage = Filters.filterImage(Filters.thresholdRG, currentImg, {threshold:$threshold.val()})
+    filteredImage = Filters.filterCanvas(Filters.thresholdRG, canvas, {threshold:$threshold.val()})
     ctxFiltered.putImageData(filteredImage, 0, 0)
 
   filterImage2 = ->
     convolutionMatrix = [  0, -1, 0,
       -1, 5, -1,
       0, -1, 0 ]
-    filteredImage = Filters.filterCanvas(Filters.fastGaussian, filteredCanvas, convolutionMatrix)
-    ctxFiltered.putImageData(filteredImage, 0, 0)
+    filteredImage = Filters.filterCanvas(Filters.fastGaussian, canvas, convolutionMatrix)
+    ctx.putImageData(filteredImage, 0, 0)
 
 
   init()

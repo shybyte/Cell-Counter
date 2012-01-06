@@ -12,7 +12,7 @@
       this.id = markingsIdCounter++;
       this.el = jq('<div/>').addClass('marking markingType' + this.type).attr({
         id: this.id,
-        draggable: true
+        draggable: false
       }).bind('dragend', function() {
         return log('dragend');
       }).bind('dragstart', function() {
@@ -49,8 +49,10 @@
       initDragAndDrop();
       initManualCounter();
       loadImage('images/nora1.jpg');
-      $threshold.change(filterImage);
-      $fadeThresholdImage.change(changeFading);
+      $threshold.rangeinput().change(filterImage);
+      $threshold = jq('#threshold').hide();
+      $fadeThresholdImage.rangeinput().change(changeFading);
+      $fadeThresholdImage = jq('#fadeThresholdImage').hide();
       jq('#removeAllMarkings').click(removeAllMarkings);
       return jq('#filterButton').click(filterImage2);
     };
@@ -66,9 +68,7 @@
         if (e.originalEvent.dataTransfer.files.length > 0) {
           return loadLocalImage(e.originalEvent.dataTransfer.files[0]);
         } else if (draggedMarking) {
-          draggedMarking.move(eventPosInCanvas(e.originalEvent));
-          draggedMarking.el.css('opacity', '1.0');
-          return draggedMarking = null;
+          return log("nada");
         }
       });
     };
@@ -138,9 +138,9 @@
     showCellCount = function() {
       var countByCellType, groupedMarkings;
       groupedMarkings = _.groupBy(markings, 'type');
-      countByCellType = function(type) {
-        var _ref;
-        return (_ref = groupedMarkings[type]) != null ? typeof _ref.length === "function" ? _ref.length(0) : void 0 : void 0;
+      countByCellType = function(type2) {
+        var _ref, _ref2;
+        return (_ref = ((_ref2 = groupedMarkings[type2]) != null ? _ref2.length : void 0)) != null ? _ref : 0;
       };
       jq('#cellCount0').text(countByCellType(0));
       return jq('#cellCount1').text(countByCellType(1));
@@ -177,7 +177,7 @@
       var filteredImage;
       filteredCanvas.width = currentImg.width;
       filteredCanvas.height = currentImg.height;
-      filteredImage = Filters.filterImage(Filters.thresholdRG, currentImg, {
+      filteredImage = Filters.filterCanvas(Filters.thresholdRG, canvas, {
         threshold: $threshold.val()
       });
       return ctxFiltered.putImageData(filteredImage, 0, 0);
@@ -185,8 +185,8 @@
     filterImage2 = function() {
       var convolutionMatrix, filteredImage;
       convolutionMatrix = [0, -1, 0, -1, 5, -1, 0, -1, 0];
-      filteredImage = Filters.filterCanvas(Filters.fastGaussian, filteredCanvas, convolutionMatrix);
-      return ctxFiltered.putImageData(filteredImage, 0, 0);
+      filteredImage = Filters.filterCanvas(Filters.fastGaussian, canvas, convolutionMatrix);
+      return ctx.putImageData(filteredImage, 0, 0);
     };
     return init();
   };
