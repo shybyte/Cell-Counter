@@ -5,7 +5,8 @@ cp -r css $TARGET
 cp -r images $TARGET
 cp -r js $TARGET
 cp -r libs $TARGET
-cp -r index.html $TARGET
+cp index.html $TARGET
+cp manifest.appcache $TARGET
 echo "Compress javascripts..."
 java -jar buildtools/closure/compiler.jar libs/common.js js/utils.js js/filters.js js/filters-fast.js js/cell-counter.js --js_output_file $TARGET/js/cell-counter.min.js
 echo "Combine javascripts..."
