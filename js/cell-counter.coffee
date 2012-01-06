@@ -36,6 +36,7 @@ initCellCounter = () ->
   ctxFiltered = filteredCanvas.getContext('2d')
   markings = []
   $markings = jq('#markings')
+  currentFilename = ""
 
   init = ->
     initReadFile()
@@ -43,14 +44,31 @@ initCellCounter = () ->
     initManualCounter()
     initSliders()
     loadImage('images/nora1.jpg')
+    loadMarkings()
     jq('#removeAllMarkings').click(removeAllMarkings)
     jq('#filterButton').click(filterImage2)
 
+  loadMarkings = ()->
+    markingsData = [
+      {pos:{x:10, y:100}, type:'0'},
+      {pos:{x:300, y:100}, type:'1'},
+    ]
+    removeAllMarkings()
+    markingsDataString = (localStorage['markings_data_'+currentFilename]) || "[]"
+    markingsData = JSON.parse(markingsDataString)
+    for markingData in markingsData
+      addMarking(markingData.pos, markingData.type)
+
+  saveMarkings = () ->
+    markingsData = ({pos:marking.pos,type:marking.type} for marking in markings)
+    localStorage['markings_data_'+currentFilename] = JSON.stringify(markingsData)
+
+
   initReadFile = ->
     $openFile = jq('#openFile')
-    $openFile.change( ->
-      files = $openFile.get(0).files
-      loadLocalImage(files[0])
+    $openFile.change(->
+        files = $openFile.get(0).files
+        loadLocalImage(files[0])
     )
 
 
@@ -103,7 +121,7 @@ initCellCounter = () ->
         if e.ctrlKey and markings.length > 0
           removeMarking(pos)
         else
-          addMarking(pos)
+          addMarkingWithSelectedType(pos)
     )
     $markings.bind('contextmenu', (e)->
         e.preventDefault()
@@ -122,9 +140,12 @@ initCellCounter = () ->
     jq('#mainCanvas').css('opacity', v1)
     jq('#filteredCanvas').css('opacity', v2)
 
-  addMarking = (pos) ->
-    markingType = jq('input:radio[name=markingColor]:checked').val()
-    marking = new Marking(pos, markingType)
+  addMarkingWithSelectedType = (pos) ->
+    addMarking(pos, jq('input:radio[name=markingColor]:checked').val())
+    saveMarkings()
+
+  addMarking = (pos, type) ->
+    marking = new Marking(pos, type)
     markings.push(marking)
     $markings.append(marking.el)
     showCellCount()
@@ -135,12 +156,19 @@ initCellCounter = () ->
       markings = _.without(markings, marking)
       marking.el.remove()
       showCellCount()
+      saveMarkings()
+
+  onRemoveAllMarkings = ->
+    removeAllMarkings()
+    saveMarkings()
 
   removeAllMarkings = ->
     for marking in markings
       marking.el.remove()
     markings = []
     showCellCount()
+
+
 
   showCellCount = ->
     groupedMarkings = _.groupBy(markings, 'type')
@@ -157,7 +185,6 @@ initCellCounter = () ->
     )
 
   loadImage = (src) ->
-    removeAllMarkings()
     img = new Image()
 
     img.onload = ->
@@ -170,9 +197,12 @@ initCellCounter = () ->
     img.src = src
 
   loadLocalImage = (file) ->
+    log(file)
     reader = new FileReader()
     reader.onload = (event) ->
       loadImage(event.target.result)
+      currentFilename = file.name
+      loadMarkings()
     reader.readAsDataURL(file)
 
   filterImage = ->
