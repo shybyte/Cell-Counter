@@ -28,10 +28,11 @@ class Marking
 initCellCounter = () ->
   $threshold = jq('#threshold')
   $fadeThresholdImage = jq('#fadeThresholdImage')
+  $markingsSize = jq('#markingsSize')
   currentImg = null
-  canvas = $('mainCanvas')
-  $canvas = jq(canvas)
-  filteredCanvas = $('filteredCanvas')
+  $canvas = jq('#mainCanvas')
+  canvas = $canvas.get(0)
+  filteredCanvas = jq('#filteredCanvas').get(0)
   ctx = canvas.getContext('2d')
   ctxFiltered = filteredCanvas.getContext('2d')
   markings = []
@@ -40,11 +41,8 @@ initCellCounter = () ->
   init = ->
     initDragAndDrop()
     initManualCounter()
+    initSliders()
     loadImage('images/nora1.jpg')
-    $threshold.rangeinput().change(filterImage)
-    $threshold = jq('#threshold').hide()
-    $fadeThresholdImage.rangeinput().change(changeFading)
-    $fadeThresholdImage = jq('#fadeThresholdImage').hide()
     jq('#removeAllMarkings').click(removeAllMarkings)
     jq('#filterButton').click(filterImage2)
 
@@ -68,6 +66,17 @@ initCellCounter = () ->
       #draggedMarking.el.css('opacity', '1.0')
       #draggedMarking = null
     )
+
+  initSliders = ->
+    initSlider = ($slider,onChange)->
+      $slider.hide().rangeinput().change(onChange)
+    $markingsSize = initSlider($markingsSize,onChangeMarkingsSize)
+    $threshold = initSlider($threshold,filterImage)
+    $fadeThresholdImage = initSlider($fadeThresholdImage,changeFading)
+
+
+  onChangeMarkingsSize = ->
+    log($markingsSize.val())
 
   eventPosInCanvas = (e)->
     canvasOffset = $canvas.offset()

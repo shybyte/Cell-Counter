@@ -34,13 +34,14 @@
     return Marking;
   })();
   initCellCounter = function() {
-    var $canvas, $fadeThresholdImage, $markings, $threshold, addMarking, canvas, changeFading, ctx, ctxFiltered, currentImg, eventPosInCanvas, filterImage, filterImage2, filteredCanvas, findNearestMarking, init, initDragAndDrop, initManualCounter, loadImage, loadLocalImage, markings, removeAllMarkings, removeMarking, showCellCount;
+    var $canvas, $fadeThresholdImage, $markings, $markingsSize, $threshold, addMarking, canvas, changeFading, ctx, ctxFiltered, currentImg, eventPosInCanvas, filterImage, filterImage2, filteredCanvas, findNearestMarking, init, initDragAndDrop, initManualCounter, initSliders, loadImage, loadLocalImage, markings, onChangeMarkingsSize, removeAllMarkings, removeMarking, showCellCount;
     $threshold = jq('#threshold');
     $fadeThresholdImage = jq('#fadeThresholdImage');
+    $markingsSize = jq('#markingsSize');
     currentImg = null;
-    canvas = $('mainCanvas');
-    $canvas = jq(canvas);
-    filteredCanvas = $('filteredCanvas');
+    $canvas = jq('#mainCanvas');
+    canvas = $canvas.get(0);
+    filteredCanvas = jq('#filteredCanvas').get(0);
     ctx = canvas.getContext('2d');
     ctxFiltered = filteredCanvas.getContext('2d');
     markings = [];
@@ -48,11 +49,8 @@
     init = function() {
       initDragAndDrop();
       initManualCounter();
+      initSliders();
       loadImage('images/nora1.jpg');
-      $threshold.rangeinput().change(filterImage);
-      $threshold = jq('#threshold').hide();
-      $fadeThresholdImage.rangeinput().change(changeFading);
-      $fadeThresholdImage = jq('#fadeThresholdImage').hide();
       jq('#removeAllMarkings').click(removeAllMarkings);
       return jq('#filterButton').click(filterImage2);
     };
@@ -71,6 +69,18 @@
           return log("nada");
         }
       });
+    };
+    initSliders = function() {
+      var initSlider;
+      initSlider = function($slider, onChange) {
+        return $slider.hide().rangeinput().change(onChange);
+      };
+      $markingsSize = initSlider($markingsSize, onChangeMarkingsSize);
+      $threshold = initSlider($threshold, filterImage);
+      return $fadeThresholdImage = initSlider($fadeThresholdImage, changeFading);
+    };
+    onChangeMarkingsSize = function() {
+      return log($markingsSize.val());
     };
     eventPosInCanvas = function(e) {
       var canvasOffset;
