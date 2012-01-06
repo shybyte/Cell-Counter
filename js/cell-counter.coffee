@@ -1,4 +1,3 @@
-markingsSize = 10
 markingsIdCounter = 0
 draggedMarking = null
 
@@ -21,7 +20,7 @@ class Marking
 
   move:(pos) ->
     @pos = pos
-    screenPos = {left:pos.x - markingsSize / 2, top:pos.y - markingsSize / 2}
+    screenPos = {left:pos.x, top:pos.y}
     @el.css(screenPos)
 
 
@@ -68,15 +67,22 @@ initCellCounter = () ->
     )
 
   initSliders = ->
-    initSlider = ($slider,onChange)->
+    bindSliderChange = ($slider, onChange)->
       $slider.hide().rangeinput().change(onChange)
-    $markingsSize = initSlider($markingsSize,onChangeMarkingsSize)
-    $threshold = initSlider($threshold,filterImage)
-    $fadeThresholdImage = initSlider($fadeThresholdImage,changeFading)
+    bindSliderChangeAndSlide = ($slider, onChange)->
+      bindSliderChange($slider, onChange).bind('onSlide', onChange)
+    $markingsSize = bindSliderChangeAndSlide($markingsSize, onChangeMarkingsSize)
+    $threshold = bindSliderChange($threshold, filterImage)
+    $fadeThresholdImage = bindSliderChangeAndSlide($fadeThresholdImage, changeFading)
 
 
   onChangeMarkingsSize = ->
-    log($markingsSize.val())
+    cssRule = getCSSRule('.marking')
+    newMarkingsSize = $markingsSize.val()
+    cssRule.style.width = newMarkingsSize + 'px'
+    cssRule.style.height = newMarkingsSize + 'px'
+    cssRule.style.marginLeft = -newMarkingsSize / 2 + 'px'
+    cssRule.style.marginTop = -newMarkingsSize / 2 + 'px'
 
   eventPosInCanvas = (e)->
     canvasOffset = $canvas.offset()
