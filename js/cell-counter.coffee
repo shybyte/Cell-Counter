@@ -20,8 +20,11 @@ class Marking
 
   move:(pos) ->
     @pos = pos
-    screenPos = {left:pos.x, top:pos.y}
+
+  updateScreenPos: (canvas,$canvas) ->
+    screenPos = {left:@pos.x/canvas.width*$canvas.width(), top:@pos.y/canvas.height*$canvas.height()}
     @el.css(screenPos)
+
 
 
 initCellCounter = () ->
@@ -44,15 +47,18 @@ initCellCounter = () ->
     initManualCounter()
     initSliders()
     loadImage('images/nora1.jpg')
-    loadMarkings()
+    initOnResize()
     jq('#removeAllMarkings').click(removeAllMarkings)
     jq('#filterButton').click(filterImage2)
 
+  initOnResize = ->
+    jq(window).resize( (e)->
+      #updateMarkingsScreenPos
+      for marking in markings
+        marking.updateScreenPos(canvas,$canvas)
+    )
+
   loadMarkings = ()->
-    markingsData = [
-      {pos:{x:10, y:100}, type:'0'},
-      {pos:{x:300, y:100}, type:'1'},
-    ]
     removeAllMarkings()
     markingsDataString = (localStorage['markings_data_'+currentFilename]) || "[]"
     markingsData = JSON.parse(markingsDataString)
@@ -111,13 +117,10 @@ initCellCounter = () ->
     cssRule.style.marginLeft = -newMarkingsSize / 2 + 'px'
     cssRule.style.marginTop = -newMarkingsSize / 2 + 'px'
 
-  eventPosInCanvas = (e)->
-    canvasOffset = $canvas.offset()
-    return {x:e.pageX - canvasOffset.left, y:e.pageY - canvasOffset.top}
-
   initManualCounter = ->
     $markings.click((e) ->
-        pos = eventPosInCanvas(e)
+        pos = eventPosInImage(e)
+        log(pos)
         if e.ctrlKey and markings.length > 0
           removeMarking(pos)
         else
@@ -125,8 +128,20 @@ initCellCounter = () ->
     )
     $markings.bind('contextmenu', (e)->
         e.preventDefault()
-        removeMarking(eventPosInCanvas(e))
+        removeMarking(eventPosInImage(e))
     )
+
+  eventPosInImage = (e)->
+    eventPosInCanvas = (e)->
+      canvasOffset = $canvas.offset()
+      return {x:e.pageX - canvasOffset.left, y:e.pageY - canvasOffset.top}
+    p = eventPosInCanvas(e)
+    return {
+      x:Math.round(p.x/$canvas.width()*canvas.width)
+      y:Math.round(p.y/$canvas.height()*canvas.height)
+    }
+
+
 
   changeFading = ->
     v = $fadeThresholdImage.val()
@@ -148,6 +163,7 @@ initCellCounter = () ->
     marking = new Marking(pos, type)
     markings.push(marking)
     $markings.append(marking.el)
+    marking.updateScreenPos(canvas,$canvas)
     showCellCount()
 
   removeMarking = (pos) ->
@@ -184,26 +200,23 @@ initCellCounter = () ->
         dx * dx + dy * dy
     )
 
+  loadLocalImage = (file) ->
+    reader = new FileReader()
+    reader.onload = (event) ->
+      loadImage(event.target.result)
+      currentFilename = file.name
+    reader.readAsDataURL(file)
+
   loadImage = (src) ->
     img = new Image()
-
     img.onload = ->
       currentImg = img
       canvas.width = img.width
       canvas.height = img.height
       ctx.drawImage(img, 0, 0)
-      filterImage()
-
-    img.src = src
-
-  loadLocalImage = (file) ->
-    log(file)
-    reader = new FileReader()
-    reader.onload = (event) ->
-      loadImage(event.target.result)
-      currentFilename = file.name
       loadMarkings()
-    reader.readAsDataURL(file)
+      filterImage()
+    img.src = src
 
   filterImage = ->
     filteredCanvas.width = currentImg.width
