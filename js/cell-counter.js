@@ -1,5 +1,5 @@
 (function() {
-  var Marking, checkAPIsAvailable, draggedMarking, initCellCounter, markingsIdCounter;
+  var Marking, draggedMarking, initCellCounter, isCanvasSupported, markingsIdCounter, warnIfNoFileReaderAvailable;
   markingsIdCounter = 0;
   draggedMarking = null;
   Marking = (function() {
@@ -307,13 +307,22 @@
     };
     return init();
   };
-  checkAPIsAvailable = function() {
-    if (typeof window.FileReader === 'undefined') {
-      return alert("No local file reading possible. Please use a newer version of firefox or google chrome");
+  isCanvasSupported = function() {
+    var elem;
+    elem = document.createElement('canvas');
+    return !!(elem.getContext && elem.getContext('2d'));
+  };
+  warnIfNoFileReaderAvailable = function() {
+    if (!window.FileReader) {
+      return alert("No local file reading possible. Please use a newer version of firefox,google chrome or safari");
     }
   };
   jq(function() {
-    checkAPIsAvailable();
-    return initCellCounter();
+    if (isCanvasSupported()) {
+      warnIfNoFileReaderAvailable();
+      return initCellCounter();
+    } else {
+      return alert("Please use a newer browser.");
+    }
   });
 }).call(this);

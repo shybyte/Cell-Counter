@@ -252,15 +252,22 @@ initCellCounter = () ->
     filteredImage = Filters.filterCanvas(Filters.fastGaussian, canvas, convolutionMatrix)
     ctx.putImageData(filteredImage, 0, 0)
 
-
   init()
 
 
-checkAPIsAvailable = ->
-  if( typeof window.FileReader == 'undefined')
-    alert("No local file reading possible. Please use a newer version of firefox or google chrome")
+isCanvasSupported = ->
+  elem = document.createElement('canvas')
+  !!(elem.getContext && elem.getContext('2d'))
+
+
+warnIfNoFileReaderAvailable = ->
+  if(!window.FileReader)
+    alert("No local file reading possible. Please use a newer version of firefox,google chrome or safari")
 
 jq ->
-  checkAPIsAvailable()
-  initCellCounter()
+  if (isCanvasSupported())
+    warnIfNoFileReaderAvailable()
+    initCellCounter()
+  else
+    alert("Please use a newer browser.")
 
