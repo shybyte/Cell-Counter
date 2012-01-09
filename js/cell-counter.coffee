@@ -21,10 +21,9 @@ class Marking
   move:(pos) ->
     @pos = pos
 
-  updateScreenPos: (canvas,$canvas) ->
-    screenPos = {left:@pos.x/canvas.width*$canvas.width(), top:@pos.y/canvas.height*$canvas.height()}
+  updateScreenPos:(canvas, $canvas) ->
+    screenPos = {left:@pos.x / canvas.width * $canvas.width(), top:@pos.y / canvas.height * $canvas.height()}
     @el.css(screenPos)
-
 
 
 initCellCounter = () ->
@@ -42,6 +41,7 @@ initCellCounter = () ->
   currentFilename = ""
 
   init = ->
+    loadSettings()
     initReadFile()
     initDragAndDrop()
     initManualCounter()
@@ -52,22 +52,43 @@ initCellCounter = () ->
     jq('#filterButton').click(filterImage2)
 
   initOnResize = ->
-    jq(window).resize( (e)->
-      #updateMarkingsScreenPos
-      for marking in markings
-        marking.updateScreenPos(canvas,$canvas)
+    jq(window).resize((e)->
+        #updateMarkingsScreenPos
+        for marking in markings
+          marking.updateScreenPos(canvas, $canvas)
     )
+
+  saveSettings = ->
+    settings = {
+      markingsSize:$markingsSize.val()
+      threshold:$threshold.val()
+      fadeThresholdImage:$fadeThresholdImage.val()
+    }
+    localStorage['cell_counter_settings'] = JSON.stringify(settings)
+
+
+  loadSettings = ->
+    settingsString = localStorage['cell_counter_settings']
+    if settingsString
+      settings = JSON.parse(settingsString)
+      log(settings)
+      $threshold.val(settings.threshold)
+      $markingsSize.val(settings.markingsSize)
+      $fadeThresholdImage.val(settings.fadeThresholdImage)
+      onChangeMarkingsSize()
+      changeFading()
+
 
   loadMarkings = ()->
     removeAllMarkings()
-    markingsDataString = (localStorage['cell_counter_markings_data_'+currentFilename]) || "[]"
+    markingsDataString = (localStorage['cell_counter_markings_data_' + currentFilename]) || "[]"
     markingsData = JSON.parse(markingsDataString)
     for markingData in markingsData
       addMarking(markingData.pos, markingData.type)
 
   saveMarkings = () ->
-    markingsData = ({pos:marking.pos,type:marking.type} for marking in markings)
-    localStorage['cell_counter_markings_data_'+currentFilename] = JSON.stringify(markingsData)
+    markingsData = ({pos:marking.pos, type:marking.type} for marking in markings)
+    localStorage['cell_counter_markings_data_' + currentFilename] = JSON.stringify(markingsData)
 
 
   initReadFile = ->
@@ -101,7 +122,10 @@ initCellCounter = () ->
 
   initSliders = ->
     bindSliderChange = ($slider, onChange)->
-      $slider.hide().rangeinput().change(onChange)
+      $slider.hide().rangeinput().change(->
+          saveSettings()
+          onChange()
+      )
     bindSliderChangeAndSlide = ($slider, onChange)->
       bindSliderChange($slider, onChange).bind('onSlide', onChange)
     $markingsSize = bindSliderChangeAndSlide($markingsSize, onChangeMarkingsSize)
@@ -136,10 +160,9 @@ initCellCounter = () ->
       return {x:e.pageX - canvasOffset.left, y:e.pageY - canvasOffset.top}
     p = eventPosInCanvas(e)
     return {
-      x:Math.round(p.x/$canvas.width()*canvas.width)
-      y:Math.round(p.y/$canvas.height()*canvas.height)
+    x:Math.round(p.x / $canvas.width() * canvas.width)
+    y:Math.round(p.y / $canvas.height() * canvas.height)
     }
-
 
 
   changeFading = ->
@@ -162,7 +185,7 @@ initCellCounter = () ->
     marking = new Marking(pos, type)
     markings.push(marking)
     $markings.append(marking.el)
-    marking.updateScreenPos(canvas,$canvas)
+    marking.updateScreenPos(canvas, $canvas)
     showCellCount()
 
   removeMarking = (pos) ->
@@ -182,7 +205,6 @@ initCellCounter = () ->
       marking.el.remove()
     markings = []
     showCellCount()
-
 
 
   showCellCount = ->
