@@ -1,0 +1,4 @@
+load:
+  - ../js/filters.js
+  - ../js/filters-fast.js
+  - ../tests/*.js
