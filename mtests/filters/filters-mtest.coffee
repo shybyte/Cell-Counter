@@ -35,8 +35,8 @@ filter = ($image,$canvas,$timeCell)->
   cgs = Filters.compressedGrayScaleFromRed(Filters.getPixels(image))
   filteredCGS = cgs;
   #filteredCGS = Filters.thresholdCGS(filteredCGS,80)
-  filteredCGS = Filters.meanCGSRepeated(filteredCGS,5,5)
-#  filteredCGS = Filters.peaksCGS(filteredCGS,50,3)
+  filteredCGS = Filters.meanCGSRepeated(filteredCGS,4,4)
+  filteredCGS = Filters.peaksCGS(filteredCGS,50,3)
 #  log(filteredCGS.peaks)
   filteredImage = Filters.imageDataFromCompressedGrayScale(filteredCGS)
   #filteredImage = Filters.filterImage(Filters.fastGaussian, image)

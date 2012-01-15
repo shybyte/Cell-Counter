@@ -162,7 +162,7 @@
         removeAllMarkings();
         cgs = Filters.compressedGrayScaleFromRed(ctx.getImageData(0, 0, canvas.width, canvas.height));
         filteredCGS = cgs;
-        filteredCGS = Filters.meanCGSRepeated(filteredCGS, 4, 5);
+        filteredCGS = Filters.meanCGSRepeated(filteredCGS, 4, 4);
         filteredCGS = Filters.peaksCGS(filteredCGS, $threshold.val(), 3);
         selectedMarkingType = getSelectedMarkingType();
         _ref = filteredCGS.peaks;
