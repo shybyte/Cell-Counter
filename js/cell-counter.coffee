@@ -57,6 +57,7 @@ initCellCounter = () ->
     initReadFile()
     initDragAndDrop()
     initManualCounter()
+    initAutoCounter()
     initCropTool()
     initSliders()
     loadImage('images/nora1.jpg')
@@ -119,8 +120,18 @@ initCellCounter = () ->
       showCellCount()
 
 
-
-
+  initAutoCounter =->
+    autoCount = ->
+      removeAllMarkings();
+      cgs = Filters.compressedGrayScaleFromRed(ctx.getImageData(0, 0, canvas.width, canvas.height))
+      filteredCGS = cgs;
+      filteredCGS = Filters.meanCGSRepeated(filteredCGS,4,5)
+      filteredCGS = Filters.peaksCGS(filteredCGS,$threshold.val(),3)
+      selectedMarkingType = getSelectedMarkingType()
+      for peak in filteredCGS.peaks
+        addMarking(peak, selectedMarkingType)
+      saveMarkings()
+    $('#autoCountButton').click(autoCount)
 
   initOnResize = ->
     jq(window).resize((e)->

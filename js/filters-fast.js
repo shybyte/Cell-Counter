@@ -202,6 +202,8 @@ Filters.meanCGSRepeated = function (pixels, meanSize, repetitions) {
 }
 
 Filters.meanCGS = function (pixels, meanSize) {
+    //    return Filters.meanCGSHorizontal(pixels, meanSize);
+    //    return Filters.meanCGSVertical(pixels, meanSize);
     return Filters.meanCGSHorizontal(Filters.meanCGSVertical(pixels, meanSize), meanSize);
 }
 
@@ -219,7 +221,7 @@ Filters.meanCGSHorizontal = function (pixels, meanSize) {
     var meanSizeHalf = Math.floor(meanSize / 2)
     for (var i = meanSize; i < size; i++) {
         sum = sum + src[i] - src[posLeft++];
-        dst[i - meanSizeHalf] = sum / meanSize;
+        dst[i - meanSizeHalf+1] = sum / meanSize;
     }
 
     return {
@@ -244,11 +246,11 @@ Filters.meanCGSVertical = function (pixels, meanSize) {
     for (var x = 0; x < w; x++) {
         var sum = 0;
         var posUp = x - meanSizeHalf * w;
-        var posDown = x + meanSizeHalf * w;
+        var posDown = x + (meanSizeHalf + 1) * w;
         var i = x;
         for (var y = 0; y < h; y++) {
             sum = sum + (posDown < size ? src[posDown] : 0) - (posUp >= 0 ? src[posUp] : 0);
-            dst[i] = sum / meanSize;
+            dst[i+w] = sum / meanSize;
             posUp += w;
             posDown += w;
             i += w;
@@ -263,7 +265,7 @@ Filters.meanCGSVertical = function (pixels, meanSize) {
 }
 
 
-Filters.peaksCGS = function (pixels, minHeight) {
+Filters.peaksCGSOld = function (pixels, minHeight) {
     var src = pixels.data;
     var w = pixels.width;
     var h = pixels.height;
@@ -272,9 +274,9 @@ Filters.peaksCGS = function (pixels, minHeight) {
     initArray(dst, size);
     for (var x = 0; x < w; x++) {
         for (var y = 0; y < h; y++) {
-            var i = y*w+x;
+            var i = y * w + x;
             var v = src[i];
-            if (v>minHeight && v>=src[i+1] && v>=src[i-1] && v>=src[i-w] && v>=src[i+w]) {
+            if (v > minHeight && v >= src[i + 1] && v >= src[i - 1] && v >= src[i - w] && v >= src[i + w]) {
                 dst[i] = 255;
             }
         }
@@ -287,7 +289,48 @@ Filters.peaksCGS = function (pixels, minHeight) {
     }
 }
 
-Filters.thresholdCGS  = function (pixels, minHeight) {
+
+Filters.peaksCGS = function (pixels, minHeight, minDist) {
+    var src = pixels.data;
+    var w = pixels.width;
+    var h = pixels.height;
+    var size = w * h;
+    var peaks = [];
+    var dst = [];
+    initArray(dst, size);
+    for (var x = 0; x < w; x++) {
+        for (var y = 0; y < h; y++) {
+            var i = y * w + x;
+            var v = src[i];
+            if (v >= minHeight) {
+                dst[i] = 255;
+                var maxX = Math.min(x + minDist, w);
+                IsMaxLoop:
+                    for (var x2 = Math.max(x - minDist, 0); x2 < maxX; x2++) {
+                        var maxY = Math.min(y + minDist, h);
+                        for (var y2 = Math.max(y - minDist, 0); y2 < maxY; y2++) {
+                            if (v < src[y2 * w + x2] && (x != x2 || y != y2)) {
+                                dst[i] = 0;
+                                break IsMaxLoop;
+                            }
+                        }
+                    }
+                if (dst[i] == 255) {
+                    peaks.push({x:x, y:y});
+                }
+            }
+        }
+    }
+
+    return {
+        data:dst,
+        width:pixels.width,
+        height:pixels.height,
+        peaks:peaks
+    }
+}
+
+Filters.thresholdCGS = function (pixels, minHeight) {
     var src = pixels.data;
     var w = pixels.width;
     var h = pixels.height;
@@ -295,9 +338,9 @@ Filters.thresholdCGS  = function (pixels, minHeight) {
     var dst = [];
     for (var x = 0; x < w; x++) {
         for (var y = 0; y < h; y++) {
-            var i = y*w+x;
+            var i = y * w + x;
             var v = src[i];
-            if (v>=minHeight ) {
+            if (v >= minHeight) {
                 dst[i] = 255;
             } else {
                 dst[i] = 0;

@@ -1,6 +1,6 @@
 (function() {
   var IMAGES, createFilterButtonCall, filter;
-  IMAGES = ['nora1.png', 'nora1-grey.png', 'dummy.png'];
+  IMAGES = ['peaktest.png', 'nora1.png', 'nora1-grey.png', 'dummy.png'];
   $(function() {
     var $canvas, $filterButton, $image, $row, $tableBody, $tds, image, _i, _len, _results;
     $tableBody = $('#examples tbody');
@@ -12,7 +12,7 @@
         return $(this);
       });
       $tableBody.append($row);
-      $image = $("<img src='images/" + image + "'>");
+      $image = $("<img src='images/" + image + "' style='min-width:100px'>");
       $tds[0].append($image);
       $canvas = $('<canvas style="border: 1px solid red;"/>');
       $tds[2].append($canvas);
@@ -39,8 +39,7 @@
     timeStart = new Date().getTime();
     cgs = Filters.compressedGrayScaleFromRed(Filters.getPixels(image));
     filteredCGS = cgs;
-    filteredCGS = Filters.meanCGSRepeated(filteredCGS, 4, 5);
-    filteredCGS = Filters.peaksCGS(filteredCGS, 50);
+    filteredCGS = Filters.meanCGSRepeated(filteredCGS, 5, 5);
     filteredImage = Filters.imageDataFromCompressedGrayScale(filteredCGS);
     neededTime = (new Date().getTime()) - timeStart;
     ctx = canvas.getContext('2d');

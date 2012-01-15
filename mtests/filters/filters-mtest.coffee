@@ -1,4 +1,4 @@
-IMAGES = ['nora1.png','nora1-grey.png','dummy.png'] #//,'nora2-big.jpg']
+IMAGES = ['peaktest.png','nora1.png','nora1-grey.png','dummy.png'] #//,'nora2-big.jpg']
 
 $ ->
   $tableBody = $('#examples tbody')
@@ -8,7 +8,7 @@ $ ->
     $tds = $row.children().map( -> $(this))
     $tableBody.append($row)
 
-    $image = $("<img src='images/#{image}'>")
+    $image = $("<img src='images/#{image}' style='min-width:100px'>")
     $tds[0].append($image)
 
     $canvas = $('<canvas style="border: 1px solid red;"/>')
@@ -35,8 +35,9 @@ filter = ($image,$canvas,$timeCell)->
   cgs = Filters.compressedGrayScaleFromRed(Filters.getPixels(image))
   filteredCGS = cgs;
   #filteredCGS = Filters.thresholdCGS(filteredCGS,80)
-  filteredCGS = Filters.meanCGSRepeated(filteredCGS,4,5)
-  filteredCGS = Filters.peaksCGS(filteredCGS,50)
+  filteredCGS = Filters.meanCGSRepeated(filteredCGS,5,5)
+#  filteredCGS = Filters.peaksCGS(filteredCGS,50,3)
+#  log(filteredCGS.peaks)
   filteredImage = Filters.imageDataFromCompressedGrayScale(filteredCGS)
   #filteredImage = Filters.filterImage(Filters.fastGaussian, image)
   neededTime = (new Date().getTime())-timeStart

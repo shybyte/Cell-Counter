@@ -48,7 +48,7 @@
     return Marking;
   })();
   initCellCounter = function() {
-    var $canvas, $fadeThresholdImage, $markings, $markingsSize, $threshold, addMarking, addMarkingWithSelectedType, canvas, changeFading, configureEnabledMarkingTypes, ctx, ctxFiltered, currentFilename, currentImg, eventPosInImage, filterImage, filterImage2, filteredCanvas, findNearestMarking, getSelectedMarkingType, init, initCropTool, initDragAndDrop, initManualCounter, initOnResize, initReadFile, initSliders, loadImage, loadLocalImage, loadMarkings, loadSettings, markings, onChangeMarkingsSize, onRemoveAllMarkings, removeAllMarkings, removeMarking, saveMarkings, saveSettings, showCellCount, warnIfNoFileReaderAvailable;
+    var $canvas, $fadeThresholdImage, $markings, $markingsSize, $threshold, addMarking, addMarkingWithSelectedType, canvas, changeFading, configureEnabledMarkingTypes, ctx, ctxFiltered, currentFilename, currentImg, eventPosInImage, filterImage, filterImage2, filteredCanvas, findNearestMarking, getSelectedMarkingType, init, initAutoCounter, initCropTool, initDragAndDrop, initManualCounter, initOnResize, initReadFile, initSliders, loadImage, loadLocalImage, loadMarkings, loadSettings, markings, onChangeMarkingsSize, onRemoveAllMarkings, removeAllMarkings, removeMarking, saveMarkings, saveSettings, showCellCount, warnIfNoFileReaderAvailable;
     $threshold = jq('#threshold');
     $fadeThresholdImage = jq('#fadeThresholdImage');
     $markingsSize = jq('#markingsSize');
@@ -69,6 +69,7 @@
       initReadFile();
       initDragAndDrop();
       initManualCounter();
+      initAutoCounter();
       initCropTool();
       initSliders();
       loadImage('images/nora1.jpg');
@@ -153,6 +154,25 @@
         })();
         return showCellCount();
       };
+    };
+    initAutoCounter = function() {
+      var autoCount;
+      autoCount = function() {
+        var cgs, filteredCGS, peak, selectedMarkingType, _i, _len, _ref;
+        removeAllMarkings();
+        cgs = Filters.compressedGrayScaleFromRed(ctx.getImageData(0, 0, canvas.width, canvas.height));
+        filteredCGS = cgs;
+        filteredCGS = Filters.meanCGSRepeated(filteredCGS, 4, 5);
+        filteredCGS = Filters.peaksCGS(filteredCGS, $threshold.val(), 3);
+        selectedMarkingType = getSelectedMarkingType();
+        _ref = filteredCGS.peaks;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          peak = _ref[_i];
+          addMarking(peak, selectedMarkingType);
+        }
+        return saveMarkings();
+      };
+      return $('#autoCountButton').click(autoCount);
     };
     initOnResize = function() {
       return jq(window).resize(function(e) {
