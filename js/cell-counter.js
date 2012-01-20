@@ -196,7 +196,10 @@
         _ref = filteredCGS.peaks;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           peak = _ref[_i];
-          addMarking(peak, selectedMarkingType);
+          addMarking({
+            x: peak.x + cropWindowPos.x,
+            y: peak.y + cropWindowPos.y
+          }, selectedMarkingType);
         }
         return saveMarkings();
       };

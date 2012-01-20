@@ -147,7 +147,10 @@ initCellCounter = () ->
       filteredCGS = Filters.peaksCGS(filteredCGS,$threshold.val(),3)
       selectedMarkingType = getSelectedMarkingType()
       for peak in filteredCGS.peaks
-        addMarking(peak, selectedMarkingType)
+        addMarking({
+          x: peak.x+cropWindowPos.x
+          y: peak.y+cropWindowPos.y
+        }, selectedMarkingType)
       saveMarkings()
     $('#autoCountButton').click(autoCount)
 

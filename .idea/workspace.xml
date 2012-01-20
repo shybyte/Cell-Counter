@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="06d59276-c7eb-4ec3-a8d7-e159bb88fae1" name="Default" comment="Fixed Crop/Save Markings Bug">
+    <list default="true" id="06d59276-c7eb-4ec3-a8d7-e159bb88fae1" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/css/style.css" afterPath="$PROJECT_DIR$/css/style.css" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/index-dev.html" afterPath="$PROJECT_DIR$/index-dev.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/cell-counter.coffee" afterPath="$PROJECT_DIR$/js/cell-counter.coffee" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/cell-counter.js" afterPath="$PROJECT_DIR$/js/cell-counter.js" />
     </list>
@@ -40,7 +38,7 @@
       <file leaf-file-name="cell-counter.coffee" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/js/cell-counter.coffee">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="119" column="42" selection-start="3421" selection-end="3421" vertical-scroll-proportion="0.44172934">
+            <state line="151" column="35" selection-start="4615" selection-end="4615" vertical-scroll-proportion="0.48851773">
               <folding />
             </state>
           </provider>
@@ -67,7 +65,7 @@
       <file leaf-file-name="index-dev.html" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/index-dev.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="68" column="56" selection-start="2574" selection-end="2574" vertical-scroll-proportion="-41.583332">
+            <state line="69" column="14" selection-start="2482" selection-end="2597" vertical-scroll-proportion="-10.458333">
               <folding />
             </state>
           </provider>
@@ -85,7 +83,7 @@
       <file leaf-file-name="index.html" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="70" column="0" selection-start="2290" selection-end="2290" vertical-scroll-proportion="-17.208334">
+            <state line="56" column="14" selection-start="2048" selection-end="2048" vertical-scroll-proportion="-8.458333">
               <folding />
             </state>
           </provider>
@@ -94,7 +92,7 @@
       <file leaf-file-name="manifest.appcache" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/manifest.appcache">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="1" column="11" selection-start="26" selection-end="26" vertical-scroll-proportion="0.0">
+            <state line="1" column="12" selection-start="27" selection-end="27" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -139,11 +137,11 @@
         <option value="$PROJECT_DIR$/mtests/filters/filters-mtest.js" />
         <option value="$PROJECT_DIR$/mtests/filters/filters.html" />
         <option value="$PROJECT_DIR$/js/filters-fast.js" />
-        <option value="$PROJECT_DIR$/index.html" />
-        <option value="$PROJECT_DIR$/manifest.appcache" />
         <option value="$PROJECT_DIR$/mtests/filters/filters-mtest.coffee" />
         <option value="$PROJECT_DIR$/index-dev.html" />
         <option value="$PROJECT_DIR$/css/style.css" />
+        <option value="$PROJECT_DIR$/index.html" />
+        <option value="$PROJECT_DIR$/manifest.appcache" />
         <option value="$PROJECT_DIR$/js/cell-counter.coffee" />
       </list>
     </option>
@@ -446,7 +444,7 @@
     <option name="INCLUDE_TEXT_INTO_SHELF" value="false" />
     <option name="CREATE_PATCH_EXPAND_DETAILS_DEFAULT" value="true" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed Crop/Save Markings Bug" />
+    <option name="LAST_COMMIT_MESSAGE" value="Show Crop Rectangle" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_FILES_UP_TO_DATE_BEFORE_COMMIT" value="false" />
@@ -480,6 +478,7 @@
     <MESSAGE value="Peak Filter" />
     <MESSAGE value="Add first version of AutoCount" />
     <MESSAGE value="Fixed Crop/Save Markings Bug" />
+    <MESSAGE value="Show Crop Rectangle" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -520,11 +519,6 @@
         <state line="38" column="2" selection-start="1187" selection-end="1187" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/manifest.appcache">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="1" column="11" selection-start="26" selection-end="26" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/mtests/filters/filters.html">
       <provider selected="true" editor-type-id="text-editor">
         <state line="13" column="29" selection-start="658" selection-end="658" vertical-scroll-proportion="0.0">
@@ -535,20 +529,6 @@
     <entry file="file://$PROJECT_DIR$/js/utils.js">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="70" column="0" selection-start="2290" selection-end="2290" vertical-scroll-proportion="-17.208334">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/index-dev.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="68" column="56" selection-start="2574" selection-end="2574" vertical-scroll-proportion="-41.583332">
           <folding />
         </state>
       </provider>
@@ -574,9 +554,30 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/index-dev.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="69" column="14" selection-start="2482" selection-end="2597" vertical-scroll-proportion="-10.458333">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="56" column="14" selection-start="2048" selection-end="2048" vertical-scroll-proportion="-8.458333">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/manifest.appcache">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="1" column="12" selection-start="27" selection-end="27" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/js/cell-counter.coffee">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="119" column="42" selection-start="3421" selection-end="3421" vertical-scroll-proportion="0.44172934">
+        <state line="151" column="35" selection-start="4615" selection-end="4615" vertical-scroll-proportion="0.48851773">
           <folding />
         </state>
       </provider>
