@@ -3,7 +3,9 @@
   <component name="ChangeListManager">
     <list default="true" id="06d59276-c7eb-4ec3-a8d7-e159bb88fae1" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/index-dev.html" afterPath="$PROJECT_DIR$/index-dev.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/cell-counter.coffee" afterPath="$PROJECT_DIR$/js/cell-counter.coffee" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/cell-counter.js" afterPath="$PROJECT_DIR$/js/cell-counter.js" />
     </list>
     <ignored path="cell-counter.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -37,7 +39,7 @@
       <file leaf-file-name="cell-counter.coffee" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/js/cell-counter.coffee">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="360" column="29" selection-start="11048" selection-end="11048" vertical-scroll-proportion="0.33333334">
+            <state line="142" column="44" selection-start="4303" selection-end="4303" vertical-scroll-proportion="0.6885522">
               <folding />
             </state>
           </provider>
@@ -64,7 +66,7 @@
       <file leaf-file-name="index-dev.html" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/index-dev.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="69" column="14" selection-start="2482" selection-end="2597" vertical-scroll-proportion="-10.458333">
+            <state line="25" column="66" selection-start="948" selection-end="952" vertical-scroll-proportion="-4.75">
               <folding />
             </state>
           </provider>
@@ -137,10 +139,10 @@
         <option value="$PROJECT_DIR$/mtests/filters/filters.html" />
         <option value="$PROJECT_DIR$/js/filters-fast.js" />
         <option value="$PROJECT_DIR$/mtests/filters/filters-mtest.coffee" />
-        <option value="$PROJECT_DIR$/index-dev.html" />
         <option value="$PROJECT_DIR$/css/style.css" />
         <option value="$PROJECT_DIR$/index.html" />
         <option value="$PROJECT_DIR$/manifest.appcache" />
+        <option value="$PROJECT_DIR$/index-dev.html" />
         <option value="$PROJECT_DIR$/js/cell-counter.coffee" />
       </list>
     </option>
@@ -394,7 +396,7 @@
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32907802" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.16312057" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25661588" sideWeight="0.17872341" order="1" side_tool="true" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25661588" sideWeight="0.83687943" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25661588" sideWeight="0.83687943" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25661588" sideWeight="0.19574468" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
@@ -443,7 +445,7 @@
     <option name="INCLUDE_TEXT_INTO_SHELF" value="false" />
     <option name="CREATE_PATCH_EXPAND_DETAILS_DEFAULT" value="true" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="Show Crop Rectangle" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed Crop/Save Markings Bug" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_FILES_UP_TO_DATE_BEFORE_COMMIT" value="false" />
@@ -476,8 +478,8 @@
     <MESSAGE value="Multiple Markings, Image Crop and Filters" />
     <MESSAGE value="Peak Filter" />
     <MESSAGE value="Add first version of AutoCount" />
-    <MESSAGE value="Fixed Crop/Save Markings Bug" />
     <MESSAGE value="Show Crop Rectangle" />
+    <MESSAGE value="Fixed Crop/Save Markings Bug" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -553,13 +555,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/index-dev.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="69" column="14" selection-start="2482" selection-end="2597" vertical-scroll-proportion="-10.458333">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/index.html">
       <provider selected="true" editor-type-id="text-editor">
         <state line="56" column="14" selection-start="2048" selection-end="2048" vertical-scroll-proportion="-8.458333">
@@ -574,9 +569,16 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/index-dev.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="25" column="66" selection-start="948" selection-end="952" vertical-scroll-proportion="-4.75">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/js/cell-counter.coffee">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="360" column="29" selection-start="11048" selection-end="11048" vertical-scroll-proportion="0.33333334">
+        <state line="142" column="44" selection-start="4303" selection-end="4303" vertical-scroll-proportion="0.6885522">
           <folding />
         </state>
       </provider>

@@ -48,7 +48,7 @@
     return Marking;
   })();
   initCellCounter = function() {
-    var $canvas, $fadeThresholdImage, $markings, $markingsSize, $threshold, addMarking, addMarkingWithSelectedType, canvas, changeFading, configureEnabledMarkingTypes, cropWindowPos, ctx, ctxFiltered, currentFilename, currentImg, eventPosInCanvas, eventPosInImage, filterImage, filterImage2, filteredCanvas, findNearestMarking, getSelectedMarkingType, init, initAutoCounter, initCropTool, initDragAndDrop, initManualCounter, initOnResize, initReadFile, initSliders, loadImage, loadLocalImage, loadMarkings, loadSettings, markings, onChangeMarkingsSize, onRemoveAllMarkings, removeAllMarkings, removeMarking, saveMarkings, saveSettings, showCellCount, warnIfNoFileReaderAvailable;
+    var $canvas, $fadeThresholdImage, $markings, $markingsSize, $threshold, addMarking, addMarkingWithSelectedType, canvas, changeFading, configureEnabledMarkingTypes, cropWindowPos, ctx, ctxFiltered, currentFilename, currentImg, eventPosInCanvas, eventPosInImage, filterImage, filterImage2, filteredCanvas, findNearestMarking, getSelectedMarkingType, init, initAutoCounter, initCropTool, initDragAndDrop, initManualCounter, initOnResize, initReadFile, initSliders, loadImage, loadLocalImage, loadMarkings, loadSettings, markings, onChangeMarkingsSize, onImageLoaded, onRemoveAllMarkings, removeAllMarkings, removeMarking, saveMarkings, saveSettings, showCellCount, warnIfNoFileReaderAvailable;
     $threshold = jq('#threshold');
     $fadeThresholdImage = jq('#fadeThresholdImage');
     $markingsSize = jq('#markingsSize');
@@ -82,9 +82,10 @@
       return $('#filterButton').click(filterImage2);
     };
     initCropTool = function() {
-      var $cropSelection, $helpText, cropImage, cropMarkins, cropStartPosInCanvas, fixPointOrder, points;
+      var $cropSelection, $helpText, $restoreOriginalImageLink, cropImage, cropMarkins, cropStartPosInCanvas, fixPointOrder, points;
       $helpText = $('#helpText');
       $cropSelection = $('#cropSelection');
+      $restoreOriginalImageLink = $('#restoreOriginalImageLink');
       points = null;
       cropStartPosInCanvas = null;
       $('#cropImageLink').click(function() {
@@ -154,9 +155,10 @@
         canvas.height = newH;
         ctx.putImageData(imageData, 0, 0);
         filterImage();
-        return cropMarkins();
+        cropMarkins();
+        return $restoreOriginalImageLink.show('slow');
       };
-      return cropMarkins = function() {
+      cropMarkins = function() {
         var m, marking, pos, _i, _len, _ref, _ref2;
         for (_i = 0, _len = markings.length; _i < _len; _i++) {
           marking = markings[_i];
@@ -182,6 +184,10 @@
         saveMarkings();
         return showCellCount();
       };
+      return $restoreOriginalImageLink.click((function() {
+        $restoreOriginalImageLink.hide('slow');
+        return onImageLoaded(currentImg);
+      }));
     };
     initAutoCounter = function() {
       var autoCount;
@@ -453,14 +459,21 @@
       var img;
       img = new Image();
       img.onload = function() {
-        currentImg = img;
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-        loadMarkings();
-        return filterImage();
+        return onImageLoaded(img);
       };
       return img.src = src;
+    };
+    onImageLoaded = function(img) {
+      cropWindowPos = {
+        x: 0,
+        y: 0
+      };
+      currentImg = img;
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+      loadMarkings();
+      return filterImage();
     };
     filterImage = function() {
       var filteredImage;

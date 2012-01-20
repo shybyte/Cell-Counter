@@ -75,6 +75,7 @@ initCellCounter = () ->
   initCropTool = ->
     $helpText = $('#helpText')
     $cropSelection = $('#cropSelection')
+    $restoreOriginalImageLink = $('#restoreOriginalImageLink')
     points = null
     cropStartPosInCanvas = null
     $('#cropImageLink').click ->
@@ -124,6 +125,8 @@ initCellCounter = () ->
       ctx.putImageData(imageData, 0, 0);
       filterImage()
       cropMarkins()
+      $restoreOriginalImageLink.show('slow')
+
     cropMarkins = ->
       for marking in markings
         pos = marking.pos
@@ -136,6 +139,10 @@ initCellCounter = () ->
       markings =  (m for m in markings when !m.removed)
       saveMarkings()
       showCellCount()
+    $restoreOriginalImageLink.click ( ->
+      $restoreOriginalImageLink.hide('slow')
+      onImageLoaded(currentImg)
+    )
 
 
   initAutoCounter =->
@@ -358,14 +365,18 @@ initCellCounter = () ->
   loadImage = (src) ->
     img = new Image()
     img.onload = ->
-      cropWindowPos = {x: 0, y: 0}
-      currentImg = img
-      canvas.width = img.width
-      canvas.height = img.height
-      ctx.drawImage(img, 0, 0)
-      loadMarkings()
-      filterImage()
+      onImageLoaded(img)
     img.src = src
+
+  onImageLoaded = (img)->
+    cropWindowPos = {x: 0, y: 0}
+    currentImg = img
+    canvas.width = img.width
+    canvas.height = img.height
+    ctx.drawImage(img, 0, 0)
+    loadMarkings()
+    filterImage()
+
 
   filterImage = ->
     filteredCanvas.width = canvas.width
