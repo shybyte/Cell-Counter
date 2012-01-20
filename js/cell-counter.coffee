@@ -74,19 +74,32 @@ initCellCounter = () ->
 
   initCropTool = ->
     $helpText = $('#helpText')
+    $cropSelection = $('#cropSelection')
     points = null
+    cropStartPosInCanvas = null
     $('#cropImageLink').click ->
       points = []
       toolMode = TOOL_MODE.CROP
       $helpText.text("Select the top left point!")
       $helpText.show("slow")
+    $markings.mousemove( (e)->
+        if toolMode == TOOL_MODE.CROP and points.length == 1
+          pos = eventPosInCanvas(e)
+          w = pos.x-cropStartPosInCanvas.x
+          h = pos.y-cropStartPosInCanvas.y
+          $cropSelection.css({width: w+'px',height:h+'px'})
+    )
     $markings.click( (e)->
       if toolMode == TOOL_MODE.CROP
+        posInCanvas = eventPosInCanvas(e)
+        $cropSelection.css({top:posInCanvas.y,left:posInCanvas.x,width:'5px',height:'5px'}).show()
+        cropStartPosInCanvas = posInCanvas;
         points.push(eventPosInImage(e))
         if points.length == 1
           $helpText.text("Select the bottom right point!")
         else if points.length>1
           $helpText.hide()
+          $cropSelection.hide('slow')
           toolMode = TOOL_MODE.MARKING
           fixPointOrder()
           cropImage()
@@ -103,7 +116,8 @@ initCellCounter = () ->
     cropImage = ->
       newW = points[1].x-points[0].x
       newH = points[1].y-points[0].y
-      imageData = ctx.getImageData(points[0].x, points[0].y, newW, newH)
+      imageData = ctx.getImageData(points[0].x-cropWindowPos.x, points[0].y-cropWindowPos.y, newW, newH)
+      cropWindowPos = {x: points[0].x, y: points[0].y}
       canvas.width = newW
       canvas.height = newH
       #ctx.drawImage(canvasClone, points[0].x, points[0].y, newW, newH, 0, 0, newW, newH);
@@ -111,7 +125,6 @@ initCellCounter = () ->
       filterImage()
       cropMarkins()
     cropMarkins = ->
-      cropWindowPos = {x: cropWindowPos.x+points[0].x, y: cropWindowPos.y+points[0].y}
       for marking in markings
         pos = marking.pos
         if (cropWindowPos.x<=pos.x<cropWindowPos.x+canvas.width and
@@ -262,14 +275,15 @@ initCellCounter = () ->
         removeMarking(eventPosInImage(e))
     )
 
+  eventPosInCanvas = (e)->
+    canvasOffset = $canvas.offset()
+    return {x:e.pageX - canvasOffset.left, y:e.pageY - canvasOffset.top}
+
   eventPosInImage = (e)->
-    eventPosInCanvas = (e)->
-      canvasOffset = $canvas.offset()
-      return {x:e.pageX - canvasOffset.left, y:e.pageY - canvasOffset.top}
     p = eventPosInCanvas(e)
     return {
-    x:Math.round(p.x / $canvas.width() * canvas.width)
-    y:Math.round(p.y / $canvas.height() * canvas.height)
+    x:Math.round(p.x / $canvas.width() * canvas.width)+cropWindowPos.x
+    y:Math.round(p.y / $canvas.height() * canvas.height)+cropWindowPos.y
     }
 
 

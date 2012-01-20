@@ -48,7 +48,7 @@
     return Marking;
   })();
   initCellCounter = function() {
-    var $canvas, $fadeThresholdImage, $markings, $markingsSize, $threshold, addMarking, addMarkingWithSelectedType, canvas, changeFading, configureEnabledMarkingTypes, cropWindowPos, ctx, ctxFiltered, currentFilename, currentImg, eventPosInImage, filterImage, filterImage2, filteredCanvas, findNearestMarking, getSelectedMarkingType, init, initAutoCounter, initCropTool, initDragAndDrop, initManualCounter, initOnResize, initReadFile, initSliders, loadImage, loadLocalImage, loadMarkings, loadSettings, markings, onChangeMarkingsSize, onRemoveAllMarkings, removeAllMarkings, removeMarking, saveMarkings, saveSettings, showCellCount, warnIfNoFileReaderAvailable;
+    var $canvas, $fadeThresholdImage, $markings, $markingsSize, $threshold, addMarking, addMarkingWithSelectedType, canvas, changeFading, configureEnabledMarkingTypes, cropWindowPos, ctx, ctxFiltered, currentFilename, currentImg, eventPosInCanvas, eventPosInImage, filterImage, filterImage2, filteredCanvas, findNearestMarking, getSelectedMarkingType, init, initAutoCounter, initCropTool, initDragAndDrop, initManualCounter, initOnResize, initReadFile, initSliders, loadImage, loadLocalImage, loadMarkings, loadSettings, markings, onChangeMarkingsSize, onRemoveAllMarkings, removeAllMarkings, removeMarking, saveMarkings, saveSettings, showCellCount, warnIfNoFileReaderAvailable;
     $threshold = jq('#threshold');
     $fadeThresholdImage = jq('#fadeThresholdImage');
     $markingsSize = jq('#markingsSize');
@@ -82,22 +82,46 @@
       return $('#filterButton').click(filterImage2);
     };
     initCropTool = function() {
-      var $helpText, cropImage, cropMarkins, fixPointOrder, points;
+      var $cropSelection, $helpText, cropImage, cropMarkins, cropStartPosInCanvas, fixPointOrder, points;
       $helpText = $('#helpText');
+      $cropSelection = $('#cropSelection');
       points = null;
+      cropStartPosInCanvas = null;
       $('#cropImageLink').click(function() {
         points = [];
         toolMode = TOOL_MODE.CROP;
         $helpText.text("Select the top left point!");
         return $helpText.show("slow");
       });
+      $markings.mousemove(function(e) {
+        var h, pos, w;
+        if (toolMode === TOOL_MODE.CROP && points.length === 1) {
+          pos = eventPosInCanvas(e);
+          w = pos.x - cropStartPosInCanvas.x;
+          h = pos.y - cropStartPosInCanvas.y;
+          return $cropSelection.css({
+            width: w + 'px',
+            height: h + 'px'
+          });
+        }
+      });
       $markings.click(function(e) {
+        var posInCanvas;
         if (toolMode === TOOL_MODE.CROP) {
+          posInCanvas = eventPosInCanvas(e);
+          $cropSelection.css({
+            top: posInCanvas.y,
+            left: posInCanvas.x,
+            width: '5px',
+            height: '5px'
+          }).show();
+          cropStartPosInCanvas = posInCanvas;
           points.push(eventPosInImage(e));
           if (points.length === 1) {
             return $helpText.text("Select the bottom right point!");
           } else if (points.length > 1) {
             $helpText.hide();
+            $cropSelection.hide('slow');
             toolMode = TOOL_MODE.MARKING;
             fixPointOrder();
             return cropImage();
@@ -121,7 +145,11 @@
         var imageData, newH, newW;
         newW = points[1].x - points[0].x;
         newH = points[1].y - points[0].y;
-        imageData = ctx.getImageData(points[0].x, points[0].y, newW, newH);
+        imageData = ctx.getImageData(points[0].x - cropWindowPos.x, points[0].y - cropWindowPos.y, newW, newH);
+        cropWindowPos = {
+          x: points[0].x,
+          y: points[0].y
+        };
         canvas.width = newW;
         canvas.height = newH;
         ctx.putImageData(imageData, 0, 0);
@@ -130,10 +158,6 @@
       };
       return cropMarkins = function() {
         var m, marking, pos, _i, _len, _ref, _ref2;
-        cropWindowPos = {
-          x: cropWindowPos.x + points[0].x,
-          y: cropWindowPos.y + points[0].y
-        };
         for (_i = 0, _len = markings.length; _i < _len; _i++) {
           marking = markings[_i];
           pos = marking.pos;
@@ -323,20 +347,20 @@
         return removeMarking(eventPosInImage(e));
       });
     };
-    eventPosInImage = function(e) {
-      var eventPosInCanvas, p;
-      eventPosInCanvas = function(e) {
-        var canvasOffset;
-        canvasOffset = $canvas.offset();
-        return {
-          x: e.pageX - canvasOffset.left,
-          y: e.pageY - canvasOffset.top
-        };
+    eventPosInCanvas = function(e) {
+      var canvasOffset;
+      canvasOffset = $canvas.offset();
+      return {
+        x: e.pageX - canvasOffset.left,
+        y: e.pageY - canvasOffset.top
       };
+    };
+    eventPosInImage = function(e) {
+      var p;
       p = eventPosInCanvas(e);
       return {
-        x: Math.round(p.x / $canvas.width() * canvas.width),
-        y: Math.round(p.y / $canvas.height() * canvas.height)
+        x: Math.round(p.x / $canvas.width() * canvas.width) + cropWindowPos.x,
+        y: Math.round(p.y / $canvas.height() * canvas.height) + cropWindowPos.y
       };
     };
     changeFading = function() {
