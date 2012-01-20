@@ -37,18 +37,18 @@
     Marking.prototype.move = function(pos) {
       return this.pos = pos;
     };
-    Marking.prototype.updateScreenPos = function(canvas, $canvas) {
+    Marking.prototype.updateScreenPos = function(canvas, $canvas, cropWindowPos) {
       var screenPos;
       screenPos = {
-        left: this.pos.x / canvas.width * $canvas.width(),
-        top: this.pos.y / canvas.height * $canvas.height()
+        left: (this.pos.x - cropWindowPos.x) / canvas.width * $canvas.width(),
+        top: (this.pos.y - cropWindowPos.y) / canvas.height * $canvas.height()
       };
       return this.el.css(screenPos);
     };
     return Marking;
   })();
   initCellCounter = function() {
-    var $canvas, $fadeThresholdImage, $markings, $markingsSize, $threshold, addMarking, addMarkingWithSelectedType, canvas, changeFading, configureEnabledMarkingTypes, ctx, ctxFiltered, currentFilename, currentImg, eventPosInImage, filterImage, filterImage2, filteredCanvas, findNearestMarking, getSelectedMarkingType, init, initAutoCounter, initCropTool, initDragAndDrop, initManualCounter, initOnResize, initReadFile, initSliders, loadImage, loadLocalImage, loadMarkings, loadSettings, markings, onChangeMarkingsSize, onRemoveAllMarkings, removeAllMarkings, removeMarking, saveMarkings, saveSettings, showCellCount, warnIfNoFileReaderAvailable;
+    var $canvas, $fadeThresholdImage, $markings, $markingsSize, $threshold, addMarking, addMarkingWithSelectedType, canvas, changeFading, configureEnabledMarkingTypes, cropWindowPos, ctx, ctxFiltered, currentFilename, currentImg, eventPosInImage, filterImage, filterImage2, filteredCanvas, findNearestMarking, getSelectedMarkingType, init, initAutoCounter, initCropTool, initDragAndDrop, initManualCounter, initOnResize, initReadFile, initSliders, loadImage, loadLocalImage, loadMarkings, loadSettings, markings, onChangeMarkingsSize, onRemoveAllMarkings, removeAllMarkings, removeMarking, saveMarkings, saveSettings, showCellCount, warnIfNoFileReaderAvailable;
     $threshold = jq('#threshold');
     $fadeThresholdImage = jq('#fadeThresholdImage');
     $markingsSize = jq('#markingsSize');
@@ -58,6 +58,10 @@
     filteredCanvas = jq('#filteredCanvas').get(0);
     ctx = canvas.getContext('2d');
     ctxFiltered = filteredCanvas.getContext('2d');
+    cropWindowPos = {
+      x: 0,
+      y: 0
+    };
     markings = [];
     $markings = jq('#markings');
     currentFilename = "";
@@ -125,17 +129,16 @@
         return cropMarkins();
       };
       return cropMarkins = function() {
-        var m, marking, newPos, oldPos, _i, _len, _ref, _ref2;
+        var m, marking, pos, _i, _len, _ref, _ref2;
+        cropWindowPos = {
+          x: cropWindowPos.x + points[0].x,
+          y: cropWindowPos.y + points[0].y
+        };
         for (_i = 0, _len = markings.length; _i < _len; _i++) {
           marking = markings[_i];
-          oldPos = marking.pos;
-          newPos = {
-            x: oldPos.x - points[0].x,
-            y: oldPos.y - points[0].y
-          };
-          if ((0 < (_ref = newPos.x) && _ref < canvas.width) && (0 < (_ref2 = newPos.y) && _ref2 < canvas.height)) {
-            marking.move(newPos);
-            marking.updateScreenPos(canvas, $canvas);
+          pos = marking.pos;
+          if ((cropWindowPos.x <= (_ref = pos.x) && _ref < cropWindowPos.x + canvas.width) && (cropWindowPos.y <= (_ref2 = pos.y) && _ref2 < cropWindowPos.y + canvas.height)) {
+            marking.updateScreenPos(canvas, $canvas, cropWindowPos);
           } else {
             marking.el.remove();
             marking.removed = true;
@@ -152,6 +155,7 @@
           }
           return _results;
         })();
+        saveMarkings();
         return showCellCount();
       };
     };
@@ -180,7 +184,7 @@
         _results = [];
         for (_i = 0, _len = markings.length; _i < _len; _i++) {
           marking = markings[_i];
-          _results.push(marking.updateScreenPos(canvas, $canvas));
+          _results.push(marking.updateScreenPos(canvas, $canvas, cropWindowPos));
         }
         return _results;
       });
@@ -361,7 +365,7 @@
       marking = new Marking(pos, type);
       markings.push(marking);
       $markings.append(marking.el);
-      marking.updateScreenPos(canvas, $canvas);
+      marking.updateScreenPos(canvas, $canvas, cropWindowPos);
       return showCellCount();
     };
     removeMarking = function(pos) {

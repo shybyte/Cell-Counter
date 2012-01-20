@@ -30,8 +30,11 @@ class Marking
   move:(pos) ->
     @pos = pos
 
-  updateScreenPos:(canvas, $canvas) ->
-    screenPos = {left:@pos.x / canvas.width * $canvas.width(), top:@pos.y / canvas.height * $canvas.height()}
+  updateScreenPos:(canvas, $canvas, cropWindowPos) ->
+    screenPos = {
+      left: (@pos.x-cropWindowPos.x) / canvas.width * $canvas.width(),
+      top: (@pos.y-cropWindowPos.y) / canvas.height * $canvas.height()
+    }
     @el.css(screenPos)
 
 
@@ -45,6 +48,10 @@ initCellCounter = () ->
   filteredCanvas = jq('#filteredCanvas').get(0)
   ctx = canvas.getContext('2d')
   ctxFiltered = filteredCanvas.getContext('2d')
+  cropWindowPos = {
+    x: 0,
+    y: 0
+  }
   markings = []
   $markings = jq('#markings')
   currentFilename = ""
@@ -104,19 +111,17 @@ initCellCounter = () ->
       filterImage()
       cropMarkins()
     cropMarkins = ->
+      cropWindowPos = {x: cropWindowPos.x+points[0].x, y: cropWindowPos.y+points[0].y}
       for marking in markings
-        oldPos = marking.pos
-        newPos = {
-          x: oldPos.x-points[0].x
-          y: oldPos.y-points[0].y
-        }
-        if 0<newPos.x<canvas.width and 0<newPos.y<canvas.height
-          marking.move(newPos)
-          marking.updateScreenPos(canvas,$canvas)
+        pos = marking.pos
+        if (cropWindowPos.x<=pos.x<cropWindowPos.x+canvas.width and
+            cropWindowPos.y<=pos.y<cropWindowPos.y+canvas.height)
+          marking.updateScreenPos(canvas,$canvas,cropWindowPos)
         else
           marking.el.remove()
           marking.removed = true
       markings =  (m for m in markings when !m.removed)
+      saveMarkings()
       showCellCount()
 
 
@@ -137,7 +142,7 @@ initCellCounter = () ->
     jq(window).resize((e)->
         #updateMarkingsScreenPos
         for marking in markings
-          marking.updateScreenPos(canvas, $canvas)
+          marking.updateScreenPos(canvas, $canvas,cropWindowPos)
     )
 
   saveSettings = ->
@@ -290,7 +295,7 @@ initCellCounter = () ->
     marking = new Marking(pos, type)
     markings.push(marking)
     $markings.append(marking.el)
-    marking.updateScreenPos(canvas, $canvas)
+    marking.updateScreenPos(canvas, $canvas,cropWindowPos)
     showCellCount()
 
   removeMarking = (pos) ->
