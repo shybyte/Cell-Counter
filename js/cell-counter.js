@@ -48,7 +48,7 @@
     return Marking;
   })();
   initCellCounter = function() {
-    var $canvas, $fadeThresholdImage, $markings, $markingsSize, $restoreOriginalImageLink, $restoreSavedCroppingLink, $threshold, addMarking, addMarkingWithSelectedType, canvas, changeFading, configureEnabledMarkingTypes, cropWindow, ctx, ctxFiltered, currentFilename, currentImg, eventPosInCanvas, eventPosInImage, filterImage, filterImage2, filteredCanvas, findNearestMarking, getSelectedMarkingType, init, initAutoCounter, initCropTool, initDragAndDrop, initManualCounter, initOnResize, initReadFile, initSliders, loadForCurrentImage, loadImage, loadLocalImage, loadMarkings, loadSavedCropWindow, loadSettings, markings, onChangeMarkingsSize, onImageLoaded, onRemoveAllMarkings, removeAllMarkings, removeMarking, saveForCurrentImage, saveMarkings, saveSettings, savedCropWindow, showCellCount, warnIfNoFileReaderAvailable;
+    var $canvas, $fadeThresholdImage, $markings, $markingsSize, $restoreOriginalImageLink, $restoreSavedCroppingLink, $threshold, addMarking, addMarkingWithSelectedType, canvas, changeFading, configureEnabledMarkingTypes, cropWindow, ctx, ctxFiltered, currentFilename, currentImg, eventPosInCanvas, eventPosInImage, filterImage, filterImage2, filteredCanvas, findNearestMarking, getSelectedMarkingType, init, initAutoCounter, initCropTool, initDragAndDrop, initHelp, initManualCounter, initOnResize, initReadFile, initSliders, loadForCurrentImage, loadImage, loadLocalImage, loadMarkings, loadSavedCropWindow, loadSettings, markings, onChangeMarkingsSize, onImageLoaded, onRemoveAllMarkings, removeAllMarkings, removeMarking, saveForCurrentImage, saveMarkings, saveSettings, savedCropWindow, showCellCount, warnIfNoFileReaderAvailable;
     $threshold = jq('#threshold');
     $fadeThresholdImage = jq('#fadeThresholdImage');
     $markingsSize = jq('#markingsSize');
@@ -72,6 +72,7 @@
       warnIfNoFileReaderAvailable();
       loadSettings();
       initConfigureDialog(configureEnabledMarkingTypes);
+      initHelp();
       configureEnabledMarkingTypes();
       initReadFile();
       initDragAndDrop();
@@ -83,6 +84,16 @@
       initOnResize();
       $('#removeAllMarkings').click(onRemoveAllMarkings);
       return $('#filterButton').click(filterImage2);
+    };
+    initHelp = function() {
+      return $("#helpLink").overlay({
+        mask: {
+          color: '#ebecff',
+          loadSpeed: 200,
+          opacity: 0.7
+        },
+        closeOnClick: false
+      });
     };
     initCropTool = function() {
       var $cropSelection, $helpText, cropImage, cropMarkins, cropStartPosInCanvas, fixPointOrder, points;
@@ -186,14 +197,14 @@
           return _results;
         })();
         saveMarkings();
-        return showCellCount();
+        showCellCount();
+        return $restoreSavedCroppingLink.hide('slow');
       };
       $restoreOriginalImageLink.click((function() {
         $restoreOriginalImageLink.hide('slow');
         return onImageLoaded(currentImg);
       }));
       return $restoreSavedCroppingLink.click((function() {
-        $restoreSavedCroppingLink.hide('slow');
         return cropImage(savedCropWindow);
       }));
     };
@@ -550,7 +561,7 @@
       mask: {
         color: '#ebecff',
         loadSpeed: 200,
-        opacity: 0.98
+        opacity: 0.7
       },
       closeOnClick: false
     });

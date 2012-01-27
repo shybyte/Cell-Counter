@@ -63,6 +63,7 @@ initCellCounter = () ->
     warnIfNoFileReaderAvailable()
     loadSettings()
     initConfigureDialog(configureEnabledMarkingTypes)
+    initHelp()
     configureEnabledMarkingTypes()
     initReadFile()
     initDragAndDrop()
@@ -74,6 +75,17 @@ initCellCounter = () ->
     initOnResize()
     $('#removeAllMarkings').click(onRemoveAllMarkings)
     $('#filterButton').click(filterImage2)
+
+  initHelp = ->
+    $("#helpLink").overlay({
+      mask:{
+      color:'#ebecff',
+      loadSpeed:200,
+      opacity:0.7
+      },
+      closeOnClick:false
+      })
+
 
   initCropTool = ->
     loadSavedCropWindow()
@@ -142,6 +154,7 @@ initCellCounter = () ->
       markings =  (m for m in markings when !m.removed)
       saveMarkings()
       showCellCount()
+      $restoreSavedCroppingLink.hide('slow')
 
     $restoreOriginalImageLink.click ( ->
       $restoreOriginalImageLink.hide('slow')
@@ -149,7 +162,6 @@ initCellCounter = () ->
     )
 
     $restoreSavedCroppingLink.click ( ->
-      $restoreSavedCroppingLink.hide('slow')
       cropImage(savedCropWindow)
     )
 
@@ -448,7 +460,7 @@ initConfigureDialog = (onNewEnabledMarkingTypes)->
     mask:{
     color:'#ebecff',
     loadSpeed:200,
-    opacity:0.98
+    opacity:0.7
     },
     closeOnClick:false
     })
