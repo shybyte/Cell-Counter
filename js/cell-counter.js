@@ -224,30 +224,49 @@
       }
     };
     initAutoCounter = function() {
-      var autoCount;
+      var $autoCountButton, autoCount, worker;
+      $autoCountButton = $('#autoCountButton');
+      worker = new Worker('js/webworkers.js');
+      worker.addEventListener('message', function(e) {
+        var peak, selectedMarkingType, _i, _len, _ref;
+        log('Worker said: ');
+        log(e.data);
+        switch (e.data.cmd) {
+          case 'autocount':
+            selectedMarkingType = getSelectedMarkingType();
+            _ref = e.data.result;
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              peak = _ref[_i];
+              addMarking({
+                x: peak.x + cropWindow.x,
+                y: peak.y + cropWindow.y
+              }, selectedMarkingType);
+            }
+            saveMarkings();
+            $('#countingMessage').hide('slow');
+            return $autoCountButton.attr("disabled", false);
+        }
+      }, false);
+      worker.postMessage({
+        cmd: 'start',
+        msg: 'bla'
+      });
       autoCount = function() {
+        var imageData, imageType, threshold;
+        $autoCountButton.attr("disabled", true);
         removeAllMarkings();
         $('#countingMessage').show();
-        return setTimeout(function() {
-          var cgs, filteredCGS, peak, selectedMarkingType, _i, _len, _ref;
-          cgs = Filters.compressedGrayScaleFromRed(ctx.getImageData(0, 0, canvas.width, canvas.height));
-          filteredCGS = cgs;
-          filteredCGS = Filters.meanCGSRepeated(filteredCGS, 4, 4);
-          filteredCGS = Filters.peaksCGS(filteredCGS, $threshold.val(), 3);
-          selectedMarkingType = getSelectedMarkingType();
-          _ref = filteredCGS.peaks;
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            peak = _ref[_i];
-            addMarking({
-              x: peak.x + cropWindow.x,
-              y: peak.y + cropWindow.y
-            }, selectedMarkingType);
-          }
-          saveMarkings();
-          return $('#countingMessage').hide('slow');
-        }, 1);
+        imageType = $('#imageTypeSelector').val();
+        imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        threshold = $threshold.val();
+        return worker.postMessage({
+          cmd: 'autocount',
+          imageData: imageData,
+          threshold: threshold,
+          imageType: imageType
+        });
       };
-      return $('#autoCountButton').click(autoCount);
+      return $autoCountButton.click(autoCount);
     };
     initOnResize = function() {
       return jq(window).resize(function(e) {
@@ -279,9 +298,9 @@
         $threshold.val(settings.threshold);
         $markingsSize.val(settings.markingsSize);
         $fadeThresholdImage.val(settings.fadeThresholdImage);
-        onChangeMarkingsSize();
-        changeFading();
       }
+      onChangeMarkingsSize();
+      changeFading();
       return configureEnabledMarkingTypes();
     };
     configureEnabledMarkingTypes = function() {

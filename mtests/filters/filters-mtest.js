@@ -39,8 +39,7 @@
     timeStart = new Date().getTime();
     cgs = Filters.compressedGrayScaleFromRed(Filters.getPixels(image));
     filteredCGS = cgs;
-    filteredCGS = Filters.meanCGSRepeated(filteredCGS, 4, 4);
-    filteredCGS = Filters.peaksCGS(filteredCGS, 50, 3);
+    filteredCGS = Filters.meanCGSRepeated(filteredCGS, 5, 5);
     filteredImage = Filters.imageDataFromCompressedGrayScale(filteredCGS);
     neededTime = (new Date().getTime()) - timeStart;
     ctx = canvas.getContext('2d');
