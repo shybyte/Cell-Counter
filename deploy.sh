@@ -9,6 +9,7 @@ cp index.html $TARGET
 cp index-dev.html $TARGET
 cp manifest.appcache $TARGET
 echo "Compress javascripts..."
+java -jar buildtools/closure/compiler.jar js/filters-fast.js js/webworkers.js --js_output_file $TARGET/js/webworkers.js
 java -jar buildtools/closure/compiler.jar libs/common.js js/utils.js js/filters.js js/filters-fast.js js/cell-counter.js --js_output_file $TARGET/js/cell-counter.min.js
 #cat libs/common.js js/utils.js js/filters.js js/filters-fast.js js/cell-counter.js >$TARGET/js/cell-counter.min.js
 echo "Combine javascripts..."

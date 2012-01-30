@@ -180,11 +180,17 @@ initCellCounter = () ->
 
   initAutoCounter =->
     $autoCountButton = $('#autoCountButton')
+    $countingMessage =  $('#countingMessage')
+    $countingProgress = $('#countingProgress')
+    setCountingProgress = (p) ->
+      $countingProgress.text(Math.round(p*100).toString())
     worker = new Worker('js/webworkers.js');
     worker.addEventListener('message', (e) ->
       log('Worker said: ')
       log(e.data)
       switch e.data.cmd
+        when 'autocountProgress'
+          setCountingProgress(e.data.result)
         when 'autocount'
           selectedMarkingType = getSelectedMarkingType()
           for peak in e.data.result
@@ -193,14 +199,15 @@ initCellCounter = () ->
             y: peak.y+cropWindow.y
             }, selectedMarkingType)
           saveMarkings()
-          $('#countingMessage').hide('slow')
+          $countingMessage.hide('slow')
           $autoCountButton.attr("disabled", false)
     , false)
     worker.postMessage({cmd:'start',msg:'bla'});
     autoCount = ->
       $autoCountButton.attr("disabled", true)
       removeAllMarkings()
-      $('#countingMessage').show()
+      setCountingProgress(0)
+      $countingMessage.show()
       imageType = $('#imageTypeSelector').val()
       imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
       threshold = $threshold.val()

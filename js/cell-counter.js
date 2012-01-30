@@ -224,14 +224,21 @@
       }
     };
     initAutoCounter = function() {
-      var $autoCountButton, autoCount, worker;
+      var $autoCountButton, $countingMessage, $countingProgress, autoCount, setCountingProgress, worker;
       $autoCountButton = $('#autoCountButton');
+      $countingMessage = $('#countingMessage');
+      $countingProgress = $('#countingProgress');
+      setCountingProgress = function(p) {
+        return $countingProgress.text(Math.round(p * 100).toString());
+      };
       worker = new Worker('js/webworkers.js');
       worker.addEventListener('message', function(e) {
         var peak, selectedMarkingType, _i, _len, _ref;
         log('Worker said: ');
         log(e.data);
         switch (e.data.cmd) {
+          case 'autocountProgress':
+            return setCountingProgress(e.data.result);
           case 'autocount':
             selectedMarkingType = getSelectedMarkingType();
             _ref = e.data.result;
@@ -243,7 +250,7 @@
               }, selectedMarkingType);
             }
             saveMarkings();
-            $('#countingMessage').hide('slow');
+            $countingMessage.hide('slow');
             return $autoCountButton.attr("disabled", false);
         }
       }, false);
@@ -255,7 +262,8 @@
         var imageData, imageType, threshold;
         $autoCountButton.attr("disabled", true);
         removeAllMarkings();
-        $('#countingMessage').show();
+        setCountingProgress(0);
+        $countingMessage.show();
         imageType = $('#imageTypeSelector').val();
         imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         threshold = $threshold.val();

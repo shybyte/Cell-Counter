@@ -1,3 +1,7 @@
+if (typeof Filters === 'undefined') {
+    Filters = {};
+}
+
 Filters.grayscale = function (pixels, args) {
     var d = pixels.data;
     for (var i = 0; i < d.length; i += 4) {
@@ -225,10 +229,11 @@ Filters.imageDataFromCompressedGrayScale = function (pixels) {
 }
 
 
-Filters.meanCGSRepeated = function (pixels, meanSize, repetitions) {
+Filters.meanCGSRepeated = function (pixels, meanSize, repetitions,reportProgress) {
     var tempResult = pixels;
     for (var i = 0; i < repetitions; i++) {
         tempResult = Filters.meanCGS(tempResult, meanSize);
+        reportProgress && reportProgress(i/repetitions)
     }
     return tempResult;
 }

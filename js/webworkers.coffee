@@ -1,5 +1,5 @@
-importScripts('filtersww.js')
-importScripts('filters-fast.js')
+if typeof(Filters) == 'undefined'
+  importScripts('filters-fast.js')
 
 addEventListener('message', (e)->
   data = e.data;
@@ -12,7 +12,15 @@ addEventListener('message', (e)->
       else
         cgs = Filters.compressedGrayScaleFromRedGreenBlue(data.imageData)
       filteredCGS = cgs;
-      filteredCGS = Filters.meanCGSRepeated(filteredCGS,5,4)
+      postProgress(0.1)
+      filteredCGS = Filters.meanCGSRepeated(filteredCGS,5,4, (p)->
+        postProgress(p*0.7+0.1)
+      )
+      postProgress(0.8)
       filteredCGS = Filters.peaksCGS(filteredCGS,data.threshold,3)
+      postProgress(1)
       postMessage({cmd:'autocount',result:filteredCGS.peaks})
 , false)
+
+postProgress = (p) ->
+  postMessage({cmd:'autocountProgress',result:p})
